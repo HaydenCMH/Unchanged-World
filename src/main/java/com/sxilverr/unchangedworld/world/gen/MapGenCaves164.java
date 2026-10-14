@@ -12,24 +12,6 @@ import com.sxilverr.unchangedworld.world.biome.Biome164;
 
 public class MapGenCaves164 extends MapGenBase {
 
-    protected void generateLargeCaveNode(long seed, int chunkX, int chunkZ, Block[] blocks, double x, double y,
-        double z) {
-        this.generateCaveNode(
-            seed,
-            chunkX,
-            chunkZ,
-            blocks,
-            x,
-            y,
-            z,
-            1.0F + this.rand.nextFloat() * 6.0F,
-            0.0F,
-            0.0F,
-            -1,
-            -1,
-            0.5D);
-    }
-
     protected void generateCaveNode(long seed, int chunkX, int chunkZ, Block[] blocks, double x, double y, double z,
         float radius, float yaw, float pitch, int step, int steps, double heightScale) {
         double centerX = (double) (chunkX * 16 + 8);
@@ -61,13 +43,7 @@ public class MapGenCaves164 extends MapGenBase {
             x += (double) (MathHelper.cos(yaw) * cosPitch);
             y += (double) sinPitch;
             z += (double) (MathHelper.sin(yaw) * cosPitch);
-
-            if (steep) {
-                pitch *= 0.92F;
-            } else {
-                pitch *= 0.7F;
-            }
-
+            pitch *= steep ? 0.92F : 0.7F;
             pitch += pitchDelta * 0.1F;
             yaw += yawDelta * 0.1F;
             pitchDelta *= 0.9F;
@@ -76,34 +52,23 @@ public class MapGenCaves164 extends MapGenBase {
             yawDelta += (random.nextFloat() - random.nextFloat()) * random.nextFloat() * 4.0F;
 
             if (!single && step == branchStep && radius > 1.0F && steps > 0) {
-                this.generateCaveNode(
-                    random.nextLong(),
-                    chunkX,
-                    chunkZ,
-                    blocks,
-                    x,
-                    y,
-                    z,
-                    random.nextFloat() * 0.5F + 0.5F,
-                    yaw - ((float) Math.PI / 2F),
-                    pitch / 3.0F,
-                    step,
-                    steps,
-                    1.0D);
-                this.generateCaveNode(
-                    random.nextLong(),
-                    chunkX,
-                    chunkZ,
-                    blocks,
-                    x,
-                    y,
-                    z,
-                    random.nextFloat() * 0.5F + 0.5F,
-                    yaw + ((float) Math.PI / 2F),
-                    pitch / 3.0F,
-                    step,
-                    steps,
-                    1.0D);
+                for (int side = -1; side <= 1; side += 2) {
+                    this.generateCaveNode(
+                        random.nextLong(),
+                        chunkX,
+                        chunkZ,
+                        blocks,
+                        x,
+                        y,
+                        z,
+                        random.nextFloat() * 0.5F + 0.5F,
+                        yaw + side * ((float) Math.PI / 2F),
+                        pitch / 3.0F,
+                        step,
+                        steps,
+                        1.0D);
+                }
+
                 return;
             }
 
@@ -117,115 +82,94 @@ public class MapGenCaves164 extends MapGenBase {
                     return;
                 }
 
-                if (x >= centerX - 16.0D - horizontal * 2.0D && z >= centerZ - 16.0D - horizontal * 2.0D
-                    && x <= centerX + 16.0D + horizontal * 2.0D
-                    && z <= centerZ + 16.0D + horizontal * 2.0D) {
-                    int minX = MathHelper.floor_double(x - horizontal) - chunkX * 16 - 1;
-                    int maxX = MathHelper.floor_double(x + horizontal) - chunkX * 16 + 1;
-                    int minY = MathHelper.floor_double(y - vertical) - 1;
-                    int maxY = MathHelper.floor_double(y + vertical) + 1;
-                    int minZ = MathHelper.floor_double(z - horizontal) - chunkZ * 16 - 1;
-                    int maxZ = MathHelper.floor_double(z + horizontal) - chunkZ * 16 + 1;
+                if (this.carve(chunkX, chunkZ, blocks, x, y, z, horizontal, vertical) && single) {
+                    break;
+                }
+            }
+        }
+    }
 
-                    if (minX < 0) {
-                        minX = 0;
-                    }
+    protected boolean carve(int chunkX, int chunkZ, Block[] blocks, double x, double y, double z, double horizontal,
+        double vertical) {
+        double centerX = (double) (chunkX * 16 + 8);
+        double centerZ = (double) (chunkZ * 16 + 8);
 
-                    if (maxX > 16) {
-                        maxX = 16;
-                    }
+        if (x < centerX - 16.0D - horizontal * 2.0D || z < centerZ - 16.0D - horizontal * 2.0D
+            || x > centerX + 16.0D + horizontal * 2.0D
+            || z > centerZ + 16.0D + horizontal * 2.0D) {
+            return false;
+        }
 
-                    if (minY < 1) {
-                        minY = 1;
-                    }
+        int minX = Math.max(0, MathHelper.floor_double(x - horizontal) - chunkX * 16 - 1);
+        int maxX = Math.min(16, MathHelper.floor_double(x + horizontal) - chunkX * 16 + 1);
+        int minY = Math.max(1, MathHelper.floor_double(y - vertical) - 1);
+        int maxY = Math.min(120, MathHelper.floor_double(y + vertical) + 1);
+        int minZ = Math.max(0, MathHelper.floor_double(z - horizontal) - chunkZ * 16 - 1);
+        int maxZ = Math.min(16, MathHelper.floor_double(z + horizontal) - chunkZ * 16 + 1);
 
-                    if (maxY > 120) {
-                        maxY = 120;
-                    }
+        for (int bx = minX; bx < maxX; ++bx) {
+            for (int bz = minZ; bz < maxZ; ++bz) {
+                for (int by = maxY + 1; by >= minY - 1; --by) {
+                    if (by >= 0 && by < 128) {
+                        Block block = blocks[(bx * 16 + bz) * 256 + by];
 
-                    if (minZ < 0) {
-                        minZ = 0;
-                    }
-
-                    if (maxZ > 16) {
-                        maxZ = 16;
-                    }
-
-                    boolean water = false;
-
-                    for (int bx = minX; !water && bx < maxX; ++bx) {
-                        for (int bz = minZ; !water && bz < maxZ; ++bz) {
-                            for (int by = maxY + 1; !water && by >= minY - 1; --by) {
-                                int index = (bx * 16 + bz) * 256 + by;
-
-                                if (by >= 0 && by < 128) {
-                                    Block block = blocks[index];
-
-                                    if (block == Blocks.flowing_water || block == Blocks.water) {
-                                        water = true;
-                                    }
-
-                                    if (by != minY - 1 && bx != minX
-                                        && bx != maxX - 1
-                                        && bz != minZ
-                                        && bz != maxZ - 1) {
-                                        by = minY;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (!water) {
-                        for (int bx = minX; bx < maxX; ++bx) {
-                            double nx = ((double) (bx + chunkX * 16) + 0.5D - x) / horizontal;
-
-                            for (int bz = minZ; bz < maxZ; ++bz) {
-                                double nz = ((double) (bz + chunkZ * 16) + 0.5D - z) / horizontal;
-                                int index = (bx * 16 + bz) * 256 + maxY;
-                                boolean foundGrass = false;
-
-                                if (nx * nx + nz * nz < 1.0D) {
-                                    for (int by = maxY - 1; by >= minY; --by) {
-                                        double ny = ((double) by + 0.5D - y) / vertical;
-
-                                        if (ny > -0.7D && nx * nx + ny * ny + nz * nz < 1.0D) {
-                                            Block block = blocks[index];
-
-                                            if (block == Blocks.grass) {
-                                                foundGrass = true;
-                                            }
-
-                                            if (block == Blocks.stone || block == Blocks.dirt
-                                                || block == Blocks.grass) {
-                                                if (by < 10) {
-                                                    blocks[index] = Blocks.flowing_lava;
-                                                } else {
-                                                    blocks[index] = null;
-
-                                                    if (foundGrass && blocks[index - 1] == Blocks.dirt) {
-                                                        blocks[index - 1] = Biome164.get(
-                                                            this.worldObj.getBiomeGenForCoords(
-                                                                bx + chunkX * 16,
-                                                                bz + chunkZ * 16)).topBlock;
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        --index;
-                                    }
-                                }
-                            }
+                        if (block == Blocks.flowing_water || block == Blocks.water) {
+                            return false;
                         }
 
-                        if (single) {
-                            break;
+                        if (by != minY - 1 && bx != minX && bx != maxX - 1 && bz != minZ && bz != maxZ - 1) {
+                            by = minY;
                         }
                     }
                 }
             }
         }
+
+        for (int bx = minX; bx < maxX; ++bx) {
+            double nx = ((double) (bx + chunkX * 16) + 0.5D - x) / horizontal;
+
+            for (int bz = minZ; bz < maxZ; ++bz) {
+                double nz = ((double) (bz + chunkZ * 16) + 0.5D - z) / horizontal;
+                int index = (bx * 16 + bz) * 256 + maxY;
+                boolean foundGrass = false;
+
+                if (nx * nx + nz * nz < 1.0D) {
+                    for (int by = maxY - 1; by >= minY; --by) {
+                        double ny = ((double) by + 0.5D - y) / vertical;
+
+                        if (this.inside(nx, ny, nz, by)) {
+                            Block block = blocks[index];
+
+                            if (block == Blocks.grass) {
+                                foundGrass = true;
+                            }
+
+                            if (block == Blocks.stone || block == Blocks.dirt || block == Blocks.grass) {
+                                if (by < 10) {
+                                    blocks[index] = Blocks.flowing_lava;
+                                } else {
+                                    blocks[index] = null;
+
+                                    if (foundGrass && blocks[index - 1] == Blocks.dirt) {
+                                        blocks[index - 1] = Biome164.get(
+                                            this.worldObj
+                                                .getBiomeGenForCoords(bx + chunkX * 16, bz + chunkZ * 16)).topBlock;
+                                    }
+                                }
+                            }
+                        }
+
+                        --index;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected boolean inside(double nx, double ny, double nz, int y) {
+        return ny > -0.7D && nx * nx + ny * ny + nz * nz < 1.0D;
     }
 
     @Override
@@ -243,7 +187,20 @@ public class MapGenCaves164 extends MapGenBase {
             int nodes = 1;
 
             if (this.rand.nextInt(4) == 0) {
-                this.generateLargeCaveNode(this.rand.nextLong(), chunkX, chunkZ, blocks, x, y, z);
+                this.generateCaveNode(
+                    this.rand.nextLong(),
+                    chunkX,
+                    chunkZ,
+                    blocks,
+                    x,
+                    y,
+                    z,
+                    1.0F + this.rand.nextFloat() * 6.0F,
+                    0.0F,
+                    0.0F,
+                    -1,
+                    -1,
+                    0.5D);
                 nodes += this.rand.nextInt(4);
             }
 

@@ -15,21 +15,17 @@ public abstract class BiomeGenBaseMixin {
 
     @Inject(method = "getFloatTemperature(III)F", at = @At("HEAD"), cancellable = true)
     private void unchangedworld$flatTemperatureLike164(int x, int y, int z, CallbackInfoReturnable<Float> cir) {
-        if (WorldTypeDefault164.isCurrent()) {
+        if (WorldTypeDefault164.current) {
             cir.setReturnValue(Biome164.get((BiomeGenBase) (Object) this).temperature);
         }
     }
 
     @Inject(method = "func_150559_j()Z", at = @At("HEAD"), cancellable = true)
     private void unchangedworld$snowFlagLike164(CallbackInfoReturnable<Boolean> cir) {
-        Biome164 values = this.unchangedworld$values();
+        Biome164 values = Biome164.find((BiomeGenBase) (Object) this);
 
-        if (values != null) {
+        if (WorldTypeDefault164.current && values != null) {
             cir.setReturnValue(values.enableSnow);
         }
-    }
-
-    private Biome164 unchangedworld$values() {
-        return WorldTypeDefault164.isCurrent() ? Biome164.find((BiomeGenBase) (Object) this) : null;
     }
 }

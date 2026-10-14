@@ -2,21 +2,8 @@ package com.sxilverr.unchangedworld.world.gen;
 
 public final class Generation164 {
 
-    private static final ThreadLocal<Boolean> ACTIVE = new ThreadLocal<Boolean>() {
-
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    };
-
-    private static final ThreadLocal<Boolean> BOOKS = new ThreadLocal<Boolean>() {
-
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    };
+    private static final ThreadLocal<Boolean> ACTIVE = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> BOOKS = ThreadLocal.withInitial(() -> false);
 
     private Generation164() {}
 
@@ -29,12 +16,12 @@ public final class Generation164 {
     }
 
     public static void begin(boolean books164) {
-        ACTIVE.set(Boolean.TRUE);
+        ACTIVE.set(true);
         BOOKS.set(books164);
     }
 
     public static void end() {
-        ACTIVE.set(Boolean.FALSE);
-        BOOKS.set(Boolean.FALSE);
+        ACTIVE.set(false);
+        BOOKS.set(false);
     }
 }

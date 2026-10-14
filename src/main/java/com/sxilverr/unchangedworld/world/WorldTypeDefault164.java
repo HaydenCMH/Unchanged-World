@@ -13,7 +13,7 @@ public class WorldTypeDefault164 extends WorldType {
 
     public static final String NAME = "default_1_6_4";
 
-    private static boolean current;
+    public static boolean current;
 
     public WorldTypeDefault164() {
         this(NAME);
@@ -21,14 +21,6 @@ public class WorldTypeDefault164 extends WorldType {
 
     protected WorldTypeDefault164(String name) {
         super(name);
-    }
-
-    public static boolean isCurrent() {
-        return current;
-    }
-
-    public static void setCurrent(boolean value) {
-        current = value;
     }
 
     public static boolean isClimate164(WorldType type) {

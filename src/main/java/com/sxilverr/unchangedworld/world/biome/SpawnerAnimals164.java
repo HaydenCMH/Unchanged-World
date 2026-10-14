@@ -32,27 +32,26 @@ public final class SpawnerAnimals164 {
             new SpawnListEntry(EntityChicken.class, 10, 4, 4),
             new SpawnListEntry(EntityCow.class, 8, 4, 4)));
     @SuppressWarnings("unchecked")
-    private static final List<SpawnListEntry>[] TABLE = new List[BiomeIds164.count()];
+    private static final List<SpawnListEntry>[] TABLE = new List[BiomeGenBase.getBiomeGenArray().length];
 
     static {
-        List<SpawnListEntry> none = Collections.emptyList();
-        put(BiomeGenBase.ocean, none);
-        put(BiomeGenBase.frozenOcean, none);
-        put(BiomeGenBase.river, none);
-        put(BiomeGenBase.frozenRiver, none);
-        put(BiomeGenBase.desert, none);
-        put(BiomeGenBase.desertHills, none);
-        put(BiomeGenBase.beach, none);
-        put(BiomeGenBase.plains, with(new SpawnListEntry(EntityHorse.class, 5, 2, 6)));
-        put(BiomeGenBase.forest, with(new SpawnListEntry(EntityWolf.class, 5, 4, 4)));
-        put(BiomeGenBase.forestHills, with(new SpawnListEntry(EntityWolf.class, 5, 4, 4)));
-        put(BiomeGenBase.taiga, with(new SpawnListEntry(EntityWolf.class, 8, 4, 4)));
-        put(BiomeGenBase.taigaHills, with(new SpawnListEntry(EntityWolf.class, 8, 4, 4)));
-        put(BiomeGenBase.jungle, with(new SpawnListEntry(EntityChicken.class, 10, 4, 4)));
-        put(BiomeGenBase.jungleHills, with(new SpawnListEntry(EntityChicken.class, 10, 4, 4)));
-        List<SpawnListEntry> mushroom = Collections.singletonList(new SpawnListEntry(EntityMooshroom.class, 8, 4, 8));
-        put(BiomeGenBase.mushroomIsland, mushroom);
-        put(BiomeGenBase.mushroomIslandShore, mushroom);
+        put(
+            Collections.emptyList(),
+            BiomeGenBase.ocean,
+            BiomeGenBase.frozenOcean,
+            BiomeGenBase.river,
+            BiomeGenBase.frozenRiver,
+            BiomeGenBase.desert,
+            BiomeGenBase.desertHills,
+            BiomeGenBase.beach);
+        put(with(new SpawnListEntry(EntityHorse.class, 5, 2, 6)), BiomeGenBase.plains);
+        put(with(new SpawnListEntry(EntityWolf.class, 5, 4, 4)), BiomeGenBase.forest, BiomeGenBase.forestHills);
+        put(with(new SpawnListEntry(EntityWolf.class, 8, 4, 4)), BiomeGenBase.taiga, BiomeGenBase.taigaHills);
+        put(with(new SpawnListEntry(EntityChicken.class, 10, 4, 4)), BiomeGenBase.jungle, BiomeGenBase.jungleHills);
+        put(
+            Collections.singletonList(new SpawnListEntry(EntityMooshroom.class, 8, 4, 8)),
+            BiomeGenBase.mushroomIsland,
+            BiomeGenBase.mushroomIslandShore);
     }
 
     private SpawnerAnimals164() {}
@@ -63,8 +62,10 @@ public final class SpawnerAnimals164 {
         return Collections.unmodifiableList(list);
     }
 
-    private static void put(BiomeGenBase biome, List<SpawnListEntry> list) {
-        TABLE[biome.biomeID] = list;
+    private static void put(List<SpawnListEntry> list, BiomeGenBase... biomes) {
+        for (BiomeGenBase biome : biomes) {
+            TABLE[biome.biomeID] = list;
+        }
     }
 
     public static List<SpawnListEntry> creatures(BiomeGenBase biome) {
@@ -107,8 +108,8 @@ public final class SpawnerAnimals164 {
                         EntityLiving entity;
 
                         try {
-                            entity = (EntityLiving) entry.entityClass.getConstructor(new Class[] { World.class })
-                                .newInstance(new Object[] { world });
+                            entity = (EntityLiving) entry.entityClass.getConstructor(World.class)
+                                .newInstance(world);
                         } catch (Exception e) {
                             e.printStackTrace();
                             continue;

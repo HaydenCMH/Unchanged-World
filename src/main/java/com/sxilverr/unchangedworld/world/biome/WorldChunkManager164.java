@@ -24,12 +24,7 @@ public class WorldChunkManager164 extends WorldChunkManager {
     private final List<BiomeGenBase> biomesToSpawnIn;
 
     public WorldChunkManager164(World world, Settings164 settings) {
-        this(world.getSeed(), settings);
-    }
-
-    public WorldChunkManager164(long seed, Settings164 settings) {
-        super();
-        GenLayer[] layers = GenLayer164.initializeAllBiomeGenerators(seed, settings);
+        GenLayer[] layers = GenLayer164.initializeAllBiomeGenerators(world.getSeed(), settings);
         this.genBiomes = layers[0];
         this.biomeIndexLayer = layers[1];
         this.biomeCache = new BiomeCache(this);
@@ -69,14 +64,10 @@ public class WorldChunkManager164 extends WorldChunkManager {
         int[] ints = this.biomeIndexLayer.getInts(x, z, width, length);
 
         for (int i = 0; i < width * length; ++i) {
-            float rainfall = (float) BiomeGenBase.getBiome(ints[i])
-                .getIntRainfall() / 65536.0F;
-
-            if (rainfall > 1.0F) {
-                rainfall = 1.0F;
-            }
-
-            listToReuse[i] = rainfall;
+            listToReuse[i] = Math.min(
+                1.0F,
+                (float) BiomeGenBase.getBiome(ints[i])
+                    .getIntRainfall() / 65536.0F);
         }
 
         return listToReuse;

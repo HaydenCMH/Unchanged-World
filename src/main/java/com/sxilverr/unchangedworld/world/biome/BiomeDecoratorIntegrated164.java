@@ -88,8 +88,8 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
     @Override
     protected void decorateAfter() {
         if (this.settings.kind == Decoration164.Kind.JUNGLE && this.options.jungleMelons) {
-            int x = this.chunkX + this.rand.nextInt(16) + 8;
-            int z = this.chunkZ + this.rand.nextInt(16) + 8;
+            int x = this.randX();
+            int z = this.randZ();
             int y = this.nextInt(this.world.getHeightValue(x, z) * 2);
             this.melonGen.generate(this.world, this.rand, x, y, z);
         }
@@ -105,13 +105,8 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
     }
 
     @Override
-    protected int sandPerChunk() {
-        return this.swampWithoutPatches() ? 0 : super.sandPerChunk();
-    }
-
-    @Override
-    protected int sandPerChunk2() {
-        return this.swampWithoutPatches() ? 0 : super.sandPerChunk2();
+    protected boolean sandPatches() {
+        return this.settings.kind != Decoration164.Kind.SWAMP || !this.options.swampNoPatches;
     }
 
     @Override
@@ -181,9 +176,9 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
             case JUNGLE:
                 if (this.options.jungleTrees1710) {
                     return this.rand.nextInt(10) == 0 ? this.bigTree()
-                        : (this.rand.nextInt(2) == 0 ? new WorldGenShrub164(3, 0)
+                        : (this.rand.nextInt(2) == 0 ? new WorldGenShrub164()
                             : (this.rand.nextInt(3) == 0 ? new WorldGenMegaJungle(false, 10, 20, 3, 3)
-                                : new WorldGenTrees164(false, 4 + this.rand.nextInt(7), 3, 3, true)));
+                                : new WorldGenTrees164(4 + this.rand.nextInt(7), 3, true, false)));
                 }
 
                 break;
@@ -201,9 +196,9 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
             return;
         }
 
-        for (int count = 0, flowers = this.flowersPerChunk(); count < flowers; ++count) {
-            int x = this.chunkX + this.rand.nextInt(16) + 8;
-            int z = this.chunkZ + this.rand.nextInt(16) + 8;
+        for (int i = 0; i < this.flowersPerChunk(); ++i) {
+            int x = this.randX();
+            int z = this.randZ();
             int y = this.nextInt(this.world.getHeightValue(x, z) + 32);
             String name = this.biome.func_150572_a(this.rand, x, y, z);
             BlockFlower flower = BlockFlower.func_149857_e(name);
@@ -217,9 +212,9 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
 
     @Override
     protected void decorateGrass() {
-        for (int count = 0, grass = this.grassPerChunk(); count < grass; ++count) {
-            int x = this.chunkX + this.rand.nextInt(16) + 8;
-            int z = this.chunkZ + this.rand.nextInt(16) + 8;
+        for (int i = 0; i < this.grassPerChunk(); ++i) {
+            int x = this.randX();
+            int z = this.randZ();
             int y = this.nextInt(this.world.getHeightValue(x, z) * 2);
             this.grassGen()
                 .generate(this.world, this.rand, x, y, z);
@@ -234,10 +229,6 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
         return this.biome.getRandomWorldGenForGrass(this.rand);
     }
 
-    private boolean swampWithoutPatches() {
-        return this.settings.kind == Decoration164.Kind.SWAMP && this.options.swampNoPatches;
-    }
-
     private void doublePlants(int type, int count) {
         this.doublePlantGen.func_150548_a(type);
 
@@ -247,8 +238,8 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
     }
 
     private boolean doublePlant() {
-        int x = this.chunkX + this.rand.nextInt(16) + 8;
-        int z = this.chunkZ + this.rand.nextInt(16) + 8;
+        int x = this.randX();
+        int z = this.randZ();
         int y = this.rand.nextInt(this.world.getHeightValue(x, z) + 32);
         return this.doublePlantGen.generate(this.world, this.rand, x, y, z);
     }

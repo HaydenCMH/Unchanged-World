@@ -11,40 +11,30 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 public class WorldGenBigTree164 extends WorldGenerator {
 
     private static final byte[] OTHER_COORD_PAIRS = { (byte) 2, (byte) 0, (byte) 0, (byte) 1, (byte) 2, (byte) 1 };
+    private static final int LEAF_DISTANCE_LIMIT = 5;
 
     private final Random rand = new Random();
     private World worldObj;
     private final int[] basePos = { 0, 0, 0 };
     private int heightLimit;
     private int height;
-    private final double heightAttenuation = 0.618D;
-    private final double branchSlope = 0.381D;
-    private double scaleWidth = 1.0D;
-    private double leafDensity = 1.0D;
-    private final int trunkSize = 1;
-    private int heightLimitLimit = 12;
-    private int leafDistanceLimit = 4;
     private int[][] leafNodes;
 
-    public WorldGenBigTree164(boolean notify) {
-        super(notify);
-    }
-
     private void generateLeafNodeList() {
-        this.height = (int) ((double) this.heightLimit * this.heightAttenuation);
+        this.height = (int) ((double) this.heightLimit * 0.618D);
 
         if (this.height >= this.heightLimit) {
             this.height = this.heightLimit - 1;
         }
 
-        int nodesPerLayer = (int) (1.382D + Math.pow(this.leafDensity * (double) this.heightLimit / 13.0D, 2.0D));
+        int nodesPerLayer = (int) (1.382D + Math.pow((double) this.heightLimit / 13.0D, 2.0D));
 
         if (nodesPerLayer < 1) {
             nodesPerLayer = 1;
         }
 
         int[][] nodes = new int[nodesPerLayer * this.heightLimit][4];
-        int y = this.basePos[1] + this.heightLimit - this.leafDistanceLimit;
+        int y = this.basePos[1] + this.heightLimit - LEAF_DISTANCE_LIMIT;
         int count = 1;
         int trunkTop = this.basePos[1] + this.height;
         int layer = y - this.basePos[1];
@@ -63,19 +53,19 @@ public class WorldGenBigTree164 extends WorldGenerator {
                 --layer;
             } else {
                 for (double offset = 0.5D; i < nodesPerLayer; ++i) {
-                    double distance = this.scaleWidth * (double) size * ((double) this.rand.nextFloat() + 0.328D);
+                    double distance = (double) size * ((double) this.rand.nextFloat() + 0.328D);
                     double angle = (double) this.rand.nextFloat() * 2.0D * Math.PI;
                     int nodeX = MathHelper.floor_double(distance * Math.sin(angle) + (double) this.basePos[0] + offset);
                     int nodeZ = MathHelper.floor_double(distance * Math.cos(angle) + (double) this.basePos[2] + offset);
                     int[] node = { nodeX, y, nodeZ };
-                    int[] nodeTop = { nodeX, y + this.leafDistanceLimit, nodeZ };
+                    int[] nodeTop = { nodeX, y + LEAF_DISTANCE_LIMIT, nodeZ };
 
                     if (this.checkBlockLine(node, nodeTop) == -1) {
                         int[] branchStart = { this.basePos[0], this.basePos[1], this.basePos[2] };
                         double horizontal = Math.sqrt(
                             Math.pow((double) Math.abs(this.basePos[0] - node[0]), 2.0D)
                                 + Math.pow((double) Math.abs(this.basePos[2] - node[2]), 2.0D));
-                        double drop = horizontal * this.branchSlope;
+                        double drop = horizontal * 0.381D;
 
                         if ((double) node[1] - drop > (double) trunkTop) {
                             branchStart[1] = trunkTop;
@@ -159,15 +149,15 @@ public class WorldGenBigTree164 extends WorldGenerator {
     }
 
     private float leafSize(int layer) {
-        return layer >= 0 && layer < this.leafDistanceLimit
-            ? (layer != 0 && layer != this.leafDistanceLimit - 1 ? 3.0F : 2.0F)
+        return layer >= 0 && layer < LEAF_DISTANCE_LIMIT
+            ? (layer != 0 && layer != LEAF_DISTANCE_LIMIT - 1 ? 3.0F : 2.0F)
             : -1.0F;
     }
 
     private void generateLeafNode(int x, int y, int z) {
         int cy = y;
 
-        for (int top = y + this.leafDistanceLimit; cy < top; ++cy) {
+        for (int top = y + LEAF_DISTANCE_LIMIT; cy < top; ++cy) {
             float size = this.leafSize(cy - y);
             this.genTreeLayer(x, cy, z, size, (byte) 1, Blocks.leaves);
         }
@@ -247,18 +237,6 @@ public class WorldGenBigTree164 extends WorldGenerator {
         int[] from = { x, bottom, z };
         int[] to = { x, top, z };
         this.placeBlockLine(from, to, Blocks.log);
-
-        if (this.trunkSize == 2) {
-            ++from[0];
-            ++to[0];
-            this.placeBlockLine(from, to, Blocks.log);
-            ++from[2];
-            ++to[2];
-            this.placeBlockLine(from, to, Blocks.log);
-            from[0] += -1;
-            to[0] += -1;
-            this.placeBlockLine(from, to, Blocks.log);
-        }
     }
 
     private void generateLeafNodeBases() {
@@ -346,18 +324,6 @@ public class WorldGenBigTree164 extends WorldGenerator {
     }
 
     @Override
-    public void setScale(double heightScale, double widthScale, double leafDensity) {
-        this.heightLimitLimit = (int) (heightScale * 12.0D);
-
-        if (heightScale > 0.5D) {
-            this.leafDistanceLimit = 5;
-        }
-
-        this.scaleWidth = widthScale;
-        this.leafDensity = leafDensity;
-    }
-
-    @Override
     public boolean generate(World world, Random rand, int x, int y, int z) {
         this.worldObj = world;
         long seed = rand.nextLong();
@@ -367,7 +333,7 @@ public class WorldGenBigTree164 extends WorldGenerator {
         this.basePos[2] = z;
 
         if (this.heightLimit == 0) {
-            this.heightLimit = 5 + this.rand.nextInt(this.heightLimitLimit);
+            this.heightLimit = 5 + this.rand.nextInt(12);
         }
 
         if (!this.validTreeLocation()) {

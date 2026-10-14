@@ -85,9 +85,13 @@ public class GenLayerZoom164 extends GenLayer {
         } else if (d == c && a != b) {
             return c;
         } else {
-            int r = this.nextInt(4);
-            return r == 0 ? a : (r == 1 ? b : (r == 2 ? c : d));
+            return this.random(a, b, c, d);
         }
+    }
+
+    protected int random(int a, int b, int c, int d) {
+        int r = this.nextInt(4);
+        return r == 0 ? a : (r == 1 ? b : (r == 2 ? c : d));
     }
 
     public static GenLayer magnify(long seed, GenLayer layer, int times) {
@@ -98,5 +102,17 @@ public class GenLayerZoom164 extends GenLayer {
         }
 
         return result;
+    }
+
+    public static class Fuzzy extends GenLayerZoom164 {
+
+        public Fuzzy(long seed, GenLayer parent) {
+            super(seed, parent);
+        }
+
+        @Override
+        protected int modeOrRandom(int a, int b, int c, int d) {
+            return this.random(a, b, c, d);
+        }
     }
 }

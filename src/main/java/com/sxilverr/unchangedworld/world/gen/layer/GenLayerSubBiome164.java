@@ -8,7 +8,6 @@ import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
 import net.minecraftforge.common.BiomeManager.BiomeEntry;
 
-import com.sxilverr.unchangedworld.world.biome.BiomeIds164;
 import com.sxilverr.unchangedworld.world.biome.BiomesOPlenty164;
 import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 
@@ -16,11 +15,11 @@ public class GenLayerSubBiome164 extends GenLayer {
 
     private static final int OFFSET_RANGE = 500000;
 
-    private final int[][] subBiomes = new int[BiomeIds164.count()][];
-    private final double[] zoom = new double[BiomeIds164.count()];
-    private final double[] threshold = new double[BiomeIds164.count()];
-    private final int[] offsetX = new int[BiomeIds164.count()];
-    private final int[] offsetZ = new int[BiomeIds164.count()];
+    private final int[][] subBiomes = new int[BiomeGenBase.getBiomeGenArray().length][];
+    private final double[] zoom = new double[this.subBiomes.length];
+    private final double[] threshold = new double[this.subBiomes.length];
+    private final int[] offsetX = new int[this.subBiomes.length];
+    private final int[] offsetZ = new int[this.subBiomes.length];
     private final boolean active;
 
     public GenLayerSubBiome164(long seed, GenLayer parent, boolean moddedBiomes) {

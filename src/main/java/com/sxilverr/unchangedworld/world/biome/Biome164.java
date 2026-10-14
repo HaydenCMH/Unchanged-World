@@ -6,8 +6,8 @@ import net.minecraft.world.biome.BiomeGenBase;
 
 public final class Biome164 {
 
-    private static final Biome164[] TABLE = new Biome164[BiomeIds164.count()];
-    private static final Biome164[] DERIVED = new Biome164[BiomeIds164.count()];
+    private static final Biome164[] TABLE = new Biome164[BiomeGenBase.getBiomeGenArray().length];
+    private static final Biome164[] DERIVED = new Biome164[TABLE.length];
     private static final Biome164 DEFAULT = new Biome164(0.1F, 0.3F, 0.5F, Blocks.grass, Blocks.dirt, false);
 
     static {
@@ -67,31 +67,20 @@ public final class Biome164 {
             return DEFAULT;
         }
 
-        Biome164 values = TABLE[biome.biomeID];
-
-        if (values == null) {
-            values = DERIVED[biome.biomeID];
-
-            if (values == null) {
-                values = derive(biome);
-                DERIVED[biome.biomeID] = values;
-            }
+        if (TABLE[biome.biomeID] != null) {
+            return TABLE[biome.biomeID];
         }
 
-        return values;
-    }
+        if (DERIVED[biome.biomeID] == null) {
+            DERIVED[biome.biomeID] = new Biome164(
+                biome.rootHeight,
+                biome.heightVariation * 2.0F + 0.1F / 0.9F,
+                biome.temperature,
+                biome.topBlock,
+                biome.fillerBlock,
+                biome.getEnableSnow());
+        }
 
-    private static Biome164 derive(BiomeGenBase biome) {
-        return new Biome164(
-            biome.rootHeight,
-            maxHeightFor(biome.heightVariation),
-            biome.temperature,
-            biome.topBlock,
-            biome.fillerBlock,
-            biome.getEnableSnow());
-    }
-
-    private static float maxHeightFor(float heightVariation) {
-        return heightVariation * 2.0F + 0.1F / 0.9F;
+        return DERIVED[biome.biomeID];
     }
 }

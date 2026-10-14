@@ -16,130 +16,60 @@ public final class Decoration164 {
         JUNGLE
     }
 
-    private static final Decoration164[] TABLE = new Decoration164[BiomeIds164.count()];
-    private static final Decoration164 DEFAULT = new Decoration164(Kind.DEFAULT);
+    private static final Decoration164[] TABLE = new Decoration164[BiomeGenBase.getBiomeGenArray().length];
+    private static final Decoration164 DEFAULT = new Decoration164(Kind.DEFAULT, 0, 2, 1, 0, 0, 0, 0, 0, 0);
 
     static {
+        put(new Decoration164(Kind.PLAINS, -999, 4, 10, 0, 0, 0, 0, 0, 0), BiomeGenBase.plains);
         put(
-            BiomeGenBase.plains,
-            new Decoration164(Kind.PLAINS).trees(-999)
-                .flowers(4)
-                .grass(10));
-        Decoration164 desert = new Decoration164(Kind.DESERT).trees(-999)
-            .deadBushes(2)
-            .reeds(50)
-            .cacti(10);
-        put(BiomeGenBase.desert, desert);
-        put(BiomeGenBase.desertHills, desert);
-        Decoration164 hills = new Decoration164(Kind.HILLS);
-        put(BiomeGenBase.extremeHills, hills);
-        put(BiomeGenBase.extremeHillsEdge, hills);
-        Decoration164 forest = new Decoration164(Kind.FOREST).trees(10)
-            .grass(2);
-        put(BiomeGenBase.forest, forest);
-        put(BiomeGenBase.forestHills, forest);
-        Decoration164 taiga = new Decoration164(Kind.TAIGA).trees(10)
-            .grass(1);
-        put(BiomeGenBase.taiga, taiga);
-        put(BiomeGenBase.taigaHills, taiga);
+            new Decoration164(Kind.DESERT, -999, 2, 1, 2, 0, 50, 10, 0, 0),
+            BiomeGenBase.desert,
+            BiomeGenBase.desertHills);
         put(
-            BiomeGenBase.swampland,
-            new Decoration164(Kind.SWAMP).trees(2)
-                .flowers(-999)
-                .deadBushes(1)
-                .mushrooms(8)
-                .reeds(10)
-                .clay(1)
-                .waterlilies(4));
-        Decoration164 mushroom = new Decoration164(Kind.DEFAULT).trees(-100)
-            .flowers(-100)
-            .grass(-100)
-            .mushrooms(1)
-            .bigMushrooms(1);
-        put(BiomeGenBase.mushroomIsland, mushroom);
-        put(BiomeGenBase.mushroomIslandShore, mushroom);
-        put(BiomeGenBase.beach, new Decoration164(Kind.DEFAULT).trees(-999));
-        Decoration164 snow = new Decoration164(Kind.SNOW);
-        put(BiomeGenBase.icePlains, snow);
-        put(BiomeGenBase.iceMountains, snow);
-        Decoration164 jungle = new Decoration164(Kind.JUNGLE).trees(50)
-            .grass(25)
-            .flowers(4);
-        put(BiomeGenBase.jungle, jungle);
-        put(BiomeGenBase.jungleHills, jungle);
+            new Decoration164(Kind.HILLS, 0, 2, 1, 0, 0, 0, 0, 0, 0),
+            BiomeGenBase.extremeHills,
+            BiomeGenBase.extremeHillsEdge);
+        put(new Decoration164(Kind.FOREST, 10, 2, 2, 0, 0, 0, 0, 0, 0), BiomeGenBase.forest, BiomeGenBase.forestHills);
+        put(new Decoration164(Kind.TAIGA, 10, 2, 1, 0, 0, 0, 0, 0, 0), BiomeGenBase.taiga, BiomeGenBase.taigaHills);
+        put(new Decoration164(Kind.SWAMP, 2, -999, 1, 1, 8, 10, 0, 0, 4), BiomeGenBase.swampland);
+        put(
+            new Decoration164(Kind.DEFAULT, -100, -100, -100, 0, 1, 0, 0, 1, 0),
+            BiomeGenBase.mushroomIsland,
+            BiomeGenBase.mushroomIslandShore);
+        put(new Decoration164(Kind.DEFAULT, -999, 2, 1, 0, 0, 0, 0, 0, 0), BiomeGenBase.beach);
+        put(new Decoration164(Kind.SNOW, 0, 2, 1, 0, 0, 0, 0, 0, 0), BiomeGenBase.icePlains, BiomeGenBase.iceMountains);
+        put(new Decoration164(Kind.JUNGLE, 50, 4, 25, 0, 0, 0, 0, 0, 0), BiomeGenBase.jungle, BiomeGenBase.jungleHills);
     }
 
     public final Kind kind;
-    public int treesPerChunk;
-    public int flowersPerChunk = 2;
-    public int grassPerChunk = 1;
-    public int deadBushPerChunk;
-    public int mushroomsPerChunk;
-    public int reedsPerChunk;
-    public int cactiPerChunk;
-    public int sandPerChunk = 1;
-    public int sandPerChunk2 = 3;
-    public int clayPerChunk = 1;
-    public int bigMushroomsPerChunk;
-    public int waterlilyPerChunk;
-    public boolean generateLakes = true;
+    public final int treesPerChunk;
+    public final int flowersPerChunk;
+    public final int grassPerChunk;
+    public final int deadBushPerChunk;
+    public final int mushroomsPerChunk;
+    public final int reedsPerChunk;
+    public final int cactiPerChunk;
+    public final int bigMushroomsPerChunk;
+    public final int waterlilyPerChunk;
 
-    private Decoration164(Kind kind) {
+    private Decoration164(Kind kind, int trees, int flowers, int grass, int deadBushes, int mushrooms, int reeds,
+        int cacti, int bigMushrooms, int waterlilies) {
         this.kind = kind;
+        this.treesPerChunk = trees;
+        this.flowersPerChunk = flowers;
+        this.grassPerChunk = grass;
+        this.deadBushPerChunk = deadBushes;
+        this.mushroomsPerChunk = mushrooms;
+        this.reedsPerChunk = reeds;
+        this.cactiPerChunk = cacti;
+        this.bigMushroomsPerChunk = bigMushrooms;
+        this.waterlilyPerChunk = waterlilies;
     }
 
-    private Decoration164 trees(int value) {
-        this.treesPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 flowers(int value) {
-        this.flowersPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 grass(int value) {
-        this.grassPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 deadBushes(int value) {
-        this.deadBushPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 mushrooms(int value) {
-        this.mushroomsPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 reeds(int value) {
-        this.reedsPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 cacti(int value) {
-        this.cactiPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 clay(int value) {
-        this.clayPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 bigMushrooms(int value) {
-        this.bigMushroomsPerChunk = value;
-        return this;
-    }
-
-    private Decoration164 waterlilies(int value) {
-        this.waterlilyPerChunk = value;
-        return this;
-    }
-
-    private static void put(BiomeGenBase biome, Decoration164 decoration) {
-        TABLE[biome.biomeID] = decoration;
+    private static void put(Decoration164 decoration, BiomeGenBase... biomes) {
+        for (BiomeGenBase biome : biomes) {
+            TABLE[biome.biomeID] = decoration;
+        }
     }
 
     public static Decoration164 get(BiomeGenBase biome) {

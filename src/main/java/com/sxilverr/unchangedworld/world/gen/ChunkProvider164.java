@@ -34,6 +34,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.ChunkProviderEvent;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
+import net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate.EventType;
 import net.minecraftforge.event.terraingen.TerrainGen;
 
 import com.sxilverr.unchangedworld.world.EndlessIds164;
@@ -71,16 +72,13 @@ public class ChunkProvider164 implements IChunkProvider {
     private final NoiseGeneratorOctaves noiseGen2;
     private final NoiseGeneratorOctaves noiseGen3;
     private final NoiseGeneratorOctaves noiseGen4;
-    public final NoiseGeneratorOctaves noiseGen5;
-    public final NoiseGeneratorOctaves noiseGen6;
-    public final NoiseGeneratorOctaves mobSpawnerNoise;
+    private final NoiseGeneratorOctaves noiseGen6;
     private double[] noiseArray;
     private double[] stoneNoise = new double[256];
     private float[] parabolicField;
     private double[] noise1;
     private double[] noise2;
     private double[] noise3;
-    private double[] noise5;
     private double[] noise6;
     private BiomeGenBase[] biomesForGeneration;
     private final MapGenBase caveGenerator;
@@ -88,6 +86,7 @@ public class ChunkProvider164 implements IChunkProvider {
     private final MapGenVillage villageGenerator;
     private final MapGenMineshaft mineshaftGenerator;
     private final MapGenScatteredFeature scatteredFeatureGenerator;
+    private final MapGenBase[] structureGenerators;
     private final MapGenBase ravineGenerator;
     private final Settings164 settings;
     private final BiomeDecorator164 decorator;
@@ -104,9 +103,9 @@ public class ChunkProvider164 implements IChunkProvider {
         this.noiseGen2 = new NoiseGeneratorOctaves(this.rand, 16);
         this.noiseGen3 = new NoiseGeneratorOctaves(this.rand, 8);
         this.noiseGen4 = new NoiseGeneratorOctaves(this.rand, 4);
-        this.noiseGen5 = new NoiseGeneratorOctaves(this.rand, 10);
+        new NoiseGeneratorOctaves(this.rand, 10);
         this.noiseGen6 = new NoiseGeneratorOctaves(this.rand, 16);
-        this.mobSpawnerNoise = new NoiseGeneratorOctaves(this.rand, 8);
+        new NoiseGeneratorOctaves(this.rand, 8);
         this.stoneNoise1710 = settings.surfaceRules1710 ? new NoiseGeneratorPerlin(this.rand, 4) : null;
         this.caveGenerator = TerrainGen.getModdedMapGen(
             settings.caves1710 ? new MapGenCaves() : new MapGenCaves164(),
@@ -124,6 +123,8 @@ public class ChunkProvider164 implements IChunkProvider {
         this.ravineGenerator = TerrainGen.getModdedMapGen(
             settings.ravines1710 ? new MapGenRavine() : new MapGenRavine164(),
             InitMapGenEvent.EventType.RAVINE);
+        this.structureGenerators = new MapGenBase[] { this.mineshaftGenerator, this.villageGenerator,
+            this.strongholdGenerator, this.scatteredFeatureGenerator };
 
         if (!settings.strongholdBiomes1710) {
             this.strongholdGenerator.field_151546_e.clear();
@@ -144,68 +145,40 @@ public class ChunkProvider164 implements IChunkProvider {
     }
 
     public void generateTerrain(int chunkX, int chunkZ, Block[] blocks) {
-        byte cellsXZ = 4;
-        byte cellsY = 16;
-        byte seaLevel = 63;
-        int noiseSizeX = cellsXZ + 1;
-        byte noiseSizeY = 17;
-        int noiseSizeZ = cellsXZ + 1;
         this.biomesForGeneration = this.worldObj.getWorldChunkManager()
-            .getBiomesForGeneration(
-                this.biomesForGeneration,
-                chunkX * 4 - 2,
-                chunkZ * 4 - 2,
-                noiseSizeX + 5,
-                noiseSizeZ + 5);
-        this.noiseArray = this.initializeNoiseField(
-            this.noiseArray,
-            chunkX * cellsXZ,
-            0,
-            chunkZ * cellsXZ,
-            noiseSizeX,
-            noiseSizeY,
-            noiseSizeZ);
+            .getBiomesForGeneration(this.biomesForGeneration, chunkX * 4 - 2, chunkZ * 4 - 2, 10, 10);
+        this.noiseArray = this.initializeNoiseField(this.noiseArray, chunkX * 4, 0, chunkZ * 4, 5, 17, 5);
 
-        for (int cx = 0; cx < cellsXZ; ++cx) {
-            for (int cz = 0; cz < cellsXZ; ++cz) {
-                for (int cy = 0; cy < cellsY; ++cy) {
-                    double yStep = 0.125D;
-                    double n00 = this.noiseArray[((cx + 0) * noiseSizeZ + cz + 0) * noiseSizeY + cy + 0];
-                    double n01 = this.noiseArray[((cx + 0) * noiseSizeZ + cz + 1) * noiseSizeY + cy + 0];
-                    double n10 = this.noiseArray[((cx + 1) * noiseSizeZ + cz + 0) * noiseSizeY + cy + 0];
-                    double n11 = this.noiseArray[((cx + 1) * noiseSizeZ + cz + 1) * noiseSizeY + cy + 0];
-                    double d00 = (this.noiseArray[((cx + 0) * noiseSizeZ + cz + 0) * noiseSizeY + cy + 1] - n00)
-                        * yStep;
-                    double d01 = (this.noiseArray[((cx + 0) * noiseSizeZ + cz + 1) * noiseSizeY + cy + 1] - n01)
-                        * yStep;
-                    double d10 = (this.noiseArray[((cx + 1) * noiseSizeZ + cz + 0) * noiseSizeY + cy + 1] - n10)
-                        * yStep;
-                    double d11 = (this.noiseArray[((cx + 1) * noiseSizeZ + cz + 1) * noiseSizeY + cy + 1] - n11)
-                        * yStep;
+        for (int cx = 0; cx < 4; ++cx) {
+            for (int cz = 0; cz < 4; ++cz) {
+                for (int cy = 0; cy < 16; ++cy) {
+                    int i00 = (cx * 5 + cz) * 17 + cy;
+                    int i01 = i00 + 17;
+                    int i10 = i00 + 85;
+                    int i11 = i00 + 102;
+                    double n00 = this.noiseArray[i00];
+                    double n01 = this.noiseArray[i01];
+                    double n10 = this.noiseArray[i10];
+                    double n11 = this.noiseArray[i11];
+                    double d00 = (this.noiseArray[i00 + 1] - n00) * 0.125D;
+                    double d01 = (this.noiseArray[i01 + 1] - n01) * 0.125D;
+                    double d10 = (this.noiseArray[i10 + 1] - n10) * 0.125D;
+                    double d11 = (this.noiseArray[i11 + 1] - n11) * 0.125D;
 
                     for (int dy = 0; dy < 8; ++dy) {
-                        double xStep = 0.25D;
+                        int y = cy * 8 + dy;
                         double z0 = n00;
                         double z1 = n01;
-                        double dx0 = (n10 - n00) * xStep;
-                        double dx1 = (n11 - n01) * xStep;
+                        double dx0 = (n10 - n00) * 0.25D;
+                        double dx1 = (n11 - n01) * 0.25D;
 
                         for (int dx = 0; dx < 4; ++dx) {
-                            int y = cy * 8 + dy;
                             int index = (dx + cx * 4) << 12 | (cz * 4) << 8 | y;
-                            double zStep = 0.25D;
-                            double dz = (z1 - z0) * zStep;
+                            double dz = (z1 - z0) * 0.25D;
                             double density = z0 - dz;
 
                             for (int dzi = 0; dzi < 4; ++dzi) {
-                                if ((density += dz) > 0.0D) {
-                                    blocks[index] = Blocks.stone;
-                                } else if (y < seaLevel) {
-                                    blocks[index] = Blocks.water;
-                                } else {
-                                    blocks[index] = null;
-                                }
-
+                                blocks[index] = (density += dz) > 0.0D ? Blocks.stone : (y < 63 ? Blocks.water : null);
                                 index += 256;
                             }
 
@@ -305,11 +278,7 @@ public class ChunkProvider164 implements IChunkProvider {
                                 }
 
                                 if (y < seaLevel && top == null) {
-                                    if (temperature < 0.15F) {
-                                        top = Blocks.ice;
-                                    } else {
-                                        top = Blocks.water;
-                                    }
+                                    top = temperature < 0.15F ? Blocks.ice : Blocks.water;
                                 }
 
                                 remaining = depth;
@@ -376,13 +345,7 @@ public class ChunkProvider164 implements IChunkProvider {
         this.replaceBlocksForBiome(chunkX, chunkZ, blocks, metadata, this.biomesForGeneration);
         this.caveGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, blocks);
         this.ravineGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, blocks);
-
-        if (this.mapFeaturesEnabled) {
-            this.mineshaftGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, blocks);
-            this.villageGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, blocks);
-            this.strongholdGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, blocks);
-            this.scatteredFeatureGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, blocks);
-        }
+        this.recreateStructures(chunkX, chunkZ, blocks);
 
         Chunk chunk = new Chunk(this.worldObj, blocks, metadata, chunkX, chunkZ);
 
@@ -416,7 +379,6 @@ public class ChunkProvider164 implements IChunkProvider {
 
         double horizontalScale = 684.412D;
         double verticalScale = 684.412D;
-        this.noise5 = this.noiseGen5.generateNoiseOctaves(this.noise5, x, z, sizeX, sizeZ, 1.121D, 1.121D, 0.5D);
         this.noise6 = this.noiseGen6.generateNoiseOctaves(this.noise6, x, z, sizeX, sizeZ, 200.0D, 200.0D, 0.5D);
         this.noise3 = this.noiseGen3.generateNoiseOctaves(
             this.noise3,
@@ -588,39 +550,24 @@ public class ChunkProvider164 implements IChunkProvider {
             this.scatteredFeatureGenerator.generateStructuresInChunk(this.worldObj, this.rand, chunkX, chunkZ);
         }
 
-        int px;
-        int py;
-        int pz;
-
         if (biome != BiomeGenBase.desert && biome != BiomeGenBase.desertHills
             && !villageGenerated
             && this.rand.nextInt(4) == 0
-            && TerrainGen.populate(
-                provider,
-                this.worldObj,
-                this.rand,
-                chunkX,
-                chunkZ,
-                villageGenerated,
-                PopulateChunkEvent.Populate.EventType.LAKE)) {
-            px = x + this.rand.nextInt(16) + 8;
-            py = this.rand.nextInt(128);
-            pz = z + this.rand.nextInt(16) + 8;
+            && this.populates(provider, chunkX, chunkZ, villageGenerated, EventType.LAKE)) {
             this.lake(Blocks.water)
-                .generate(this.worldObj, this.rand, px, py, pz);
+                .generate(
+                    this.worldObj,
+                    this.rand,
+                    x + this.rand.nextInt(16) + 8,
+                    this.rand.nextInt(128),
+                    z + this.rand.nextInt(16) + 8);
         }
 
-        if (TerrainGen.populate(
-            provider,
-            this.worldObj,
-            this.rand,
-            chunkX,
-            chunkZ,
-            villageGenerated,
-            PopulateChunkEvent.Populate.EventType.LAVA) && !villageGenerated && this.rand.nextInt(8) == 0) {
-            px = x + this.rand.nextInt(16) + 8;
-            py = this.rand.nextInt(this.rand.nextInt(120) + 8);
-            pz = z + this.rand.nextInt(16) + 8;
+        if (this.populates(provider, chunkX, chunkZ, villageGenerated, EventType.LAVA) && !villageGenerated
+            && this.rand.nextInt(8) == 0) {
+            int px = x + this.rand.nextInt(16) + 8;
+            int py = this.rand.nextInt(this.rand.nextInt(120) + 8);
+            int pz = z + this.rand.nextInt(16) + 8;
 
             if (py < 63 || this.rand.nextInt(10) == 0) {
                 this.lake(Blocks.lava)
@@ -628,21 +575,16 @@ public class ChunkProvider164 implements IChunkProvider {
             }
         }
 
-        boolean generate = TerrainGen.populate(
-            provider,
-            this.worldObj,
-            this.rand,
-            chunkX,
-            chunkZ,
-            villageGenerated,
-            PopulateChunkEvent.Populate.EventType.DUNGEON);
-
-        for (int i = 0; generate && i < 8; ++i) {
-            px = x + this.rand.nextInt(16) + 8;
-            py = this.rand.nextInt(128);
-            pz = z + this.rand.nextInt(16) + 8;
-            this.dungeon()
-                .generate(this.worldObj, this.rand, px, py, pz);
+        if (this.populates(provider, chunkX, chunkZ, villageGenerated, EventType.DUNGEON)) {
+            for (int i = 0; i < 8; ++i) {
+                this.dungeon()
+                    .generate(
+                        this.worldObj,
+                        this.rand,
+                        x + this.rand.nextInt(16) + 8,
+                        this.rand.nextInt(128),
+                        z + this.rand.nextInt(16) + 8);
+            }
         }
 
         if (Biome164.find(biome) == null) {
@@ -651,14 +593,7 @@ public class ChunkProvider164 implements IChunkProvider {
             this.decorator.decorate(this.worldObj, this.rand, biome, x, z);
         }
 
-        if (TerrainGen.populate(
-            provider,
-            this.worldObj,
-            this.rand,
-            chunkX,
-            chunkZ,
-            villageGenerated,
-            PopulateChunkEvent.Populate.EventType.ANIMALS)) {
+        if (this.populates(provider, chunkX, chunkZ, villageGenerated, EventType.ANIMALS)) {
             if (this.settings.animals1710) {
                 SpawnerAnimals.performWorldGenSpawning(this.worldObj, biome, x + 8, z + 8, 16, 16, this.rand);
             } else {
@@ -666,27 +601,18 @@ public class ChunkProvider164 implements IChunkProvider {
             }
         }
 
-        x += 8;
-        z += 8;
-        generate = TerrainGen.populate(
-            provider,
-            this.worldObj,
-            this.rand,
-            chunkX,
-            chunkZ,
-            villageGenerated,
-            PopulateChunkEvent.Populate.EventType.ICE);
+        if (this.populates(provider, chunkX, chunkZ, villageGenerated, EventType.ICE)) {
+            for (int bx = x + 8; bx < x + 24; ++bx) {
+                for (int bz = z + 8; bz < z + 24; ++bz) {
+                    int height = this.worldObj.getPrecipitationHeight(bx, bz);
 
-        for (int dx = 0; generate && dx < 16; ++dx) {
-            for (int dz = 0; dz < 16; ++dz) {
-                int height = this.worldObj.getPrecipitationHeight(x + dx, z + dz);
+                    if (this.canFreeze(bx, height - 1, bz)) {
+                        this.worldObj.setBlock(bx, height - 1, bz, Blocks.ice, 0, 2);
+                    }
 
-                if (this.canFreeze(dx + x, height - 1, dz + z)) {
-                    this.worldObj.setBlock(dx + x, height - 1, dz + z, Blocks.ice, 0, 2);
-                }
-
-                if (this.canSnow(dx + x, height, dz + z)) {
-                    this.worldObj.setBlock(dx + x, height, dz + z, Blocks.snow_layer, 0, 2);
+                    if (this.canSnow(bx, height, bz)) {
+                        this.worldObj.setBlock(bx, height, bz, Blocks.snow_layer, 0, 2);
+                    }
                 }
             }
         }
@@ -694,6 +620,10 @@ public class ChunkProvider164 implements IChunkProvider {
         MinecraftForge.EVENT_BUS
             .post(new PopulateChunkEvent.Post(provider, this.worldObj, this.rand, chunkX, chunkZ, villageGenerated));
         BlockFalling.fallInstantly = false;
+    }
+
+    private boolean populates(IChunkProvider provider, int chunkX, int chunkZ, boolean village, EventType type) {
+        return TerrainGen.populate(provider, this.worldObj, this.rand, chunkX, chunkZ, village, type);
     }
 
     private WorldGenerator lake(Block block) {
@@ -706,7 +636,7 @@ public class ChunkProvider164 implements IChunkProvider {
 
     private boolean canFreeze(int x, int y, int z) {
         return this.settings.climate1710 ? this.worldObj.isBlockFreezable(x, y, z)
-            : Climate164.canBlockFreeze(this.worldObj, x, y, z, false);
+            : Climate164.canBlockFreeze(this.worldObj, x, y, z);
     }
 
     private boolean canSnow(int x, int y, int z) {
@@ -747,9 +677,7 @@ public class ChunkProvider164 implements IChunkProvider {
 
     @Override
     public ChunkPosition func_147416_a(World world, String structureName, int x, int y, int z) {
-        return "Stronghold".equals(structureName) && this.strongholdGenerator != null
-            ? this.strongholdGenerator.func_151545_a(world, x, y, z)
-            : null;
+        return "Stronghold".equals(structureName) ? this.strongholdGenerator.func_151545_a(world, x, y, z) : null;
     }
 
     @Override
@@ -759,11 +687,14 @@ public class ChunkProvider164 implements IChunkProvider {
 
     @Override
     public void recreateStructures(int chunkX, int chunkZ) {
+        this.recreateStructures(chunkX, chunkZ, null);
+    }
+
+    private void recreateStructures(int chunkX, int chunkZ, Block[] blocks) {
         if (this.mapFeaturesEnabled) {
-            this.mineshaftGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, (Block[]) null);
-            this.villageGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, (Block[]) null);
-            this.strongholdGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, (Block[]) null);
-            this.scatteredFeatureGenerator.func_151539_a(this, this.worldObj, chunkX, chunkZ, (Block[]) null);
+            for (MapGenBase generator : this.structureGenerators) {
+                generator.func_151539_a(this, this.worldObj, chunkX, chunkZ, blocks);
+            }
         }
     }
 }

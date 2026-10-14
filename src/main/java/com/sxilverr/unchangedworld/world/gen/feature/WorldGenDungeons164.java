@@ -13,6 +13,8 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 
 public class WorldGenDungeons164 extends WorldGenerator {
 
+    private static final String[] MOBS = { "Skeleton", "Zombie", "Zombie", "Spider" };
+
     @Override
     public boolean generate(World world, Random rand, int x, int y, int z) {
         byte height = 3;
@@ -81,31 +83,9 @@ public class WorldGenDungeons164 extends WorldGenerator {
                 int cz = z + rand.nextInt(radiusZ * 2 + 1) - radiusZ;
 
                 if (world.isAirBlock(cx, y, cz)) {
-                    int walls = 0;
-
-                    if (world.getBlock(cx - 1, y, cz)
-                        .getMaterial()
-                        .isSolid()) {
-                        ++walls;
-                    }
-
-                    if (world.getBlock(cx + 1, y, cz)
-                        .getMaterial()
-                        .isSolid()) {
-                        ++walls;
-                    }
-
-                    if (world.getBlock(cx, y, cz - 1)
-                        .getMaterial()
-                        .isSolid()) {
-                        ++walls;
-                    }
-
-                    if (world.getBlock(cx, y, cz + 1)
-                        .getMaterial()
-                        .isSolid()) {
-                        ++walls;
-                    }
+                    int walls = (isSolid(world, cx - 1, y, cz) ? 1 : 0) + (isSolid(world, cx + 1, y, cz) ? 1 : 0)
+                        + (isSolid(world, cx, y, cz - 1) ? 1 : 0)
+                        + (isSolid(world, cx, y, cz + 1) ? 1 : 0);
 
                     if (walls == 1) {
                         world.setBlock(cx, y, cz, Blocks.chest, 0, 2);
@@ -129,16 +109,15 @@ public class WorldGenDungeons164 extends WorldGenerator {
 
         if (spawner != null) {
             spawner.func_145881_a()
-                .setEntityName(this.pickMobSpawner(rand));
-        } else {
-            System.err.println("Failed to fetch mob spawner entity at (" + x + ", " + y + ", " + z + ")");
+                .setEntityName(MOBS[rand.nextInt(4)]);
         }
 
         return true;
     }
 
-    private String pickMobSpawner(Random rand) {
-        int roll = rand.nextInt(4);
-        return roll == 0 ? "Skeleton" : (roll == 1 ? "Zombie" : (roll == 2 ? "Zombie" : (roll == 3 ? "Spider" : "")));
+    private static boolean isSolid(World world, int x, int y, int z) {
+        return world.getBlock(x, y, z)
+            .getMaterial()
+            .isSolid();
     }
 }

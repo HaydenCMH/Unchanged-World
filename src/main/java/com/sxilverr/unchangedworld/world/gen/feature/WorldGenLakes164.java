@@ -23,9 +23,10 @@ public class WorldGenLakes164 extends WorldGenerator {
     @Override
     public boolean generate(World world, Random rand, int x, int y, int z) {
         x -= 8;
+        z -= 8;
 
-        for (z -= 8; y > 5 && world.isAirBlock(x, y, z); --y) {
-            ;
+        while (y > 5 && world.isAirBlock(x, y, z)) {
+            --y;
         }
 
         if (y <= 4) {
@@ -93,11 +94,8 @@ public class WorldGenLakes164 extends WorldGenerator {
                 for (int dy = 4; dy < 8; ++dy) {
                     if (shape[(dx * 16 + dz) * 8 + dy] && world.getBlock(x + dx, y + dy - 1, z + dz) == Blocks.dirt
                         && world.getSavedLightValue(EnumSkyBlock.Sky, x + dx, y + dy, z + dz) > 0) {
-                        if (Biome164.get(world.getBiomeGenForCoords(x + dx, z + dz)).topBlock == Blocks.mycelium) {
-                            world.setBlock(x + dx, y + dy - 1, z + dz, Blocks.mycelium, 0, 2);
-                        } else {
-                            world.setBlock(x + dx, y + dy - 1, z + dz, Blocks.grass, 0, 2);
-                        }
+                        Block top = Biome164.get(world.getBiomeGenForCoords(x + dx, z + dz)).topBlock;
+                        world.setBlock(x + dx, y + dy - 1, z + dz, top == Blocks.mycelium ? top : Blocks.grass, 0, 2);
                     }
                 }
             }
@@ -121,7 +119,7 @@ public class WorldGenLakes164 extends WorldGenerator {
         if (this.block.getMaterial() == Material.water) {
             for (int dx = 0; dx < 16; ++dx) {
                 for (int dz = 0; dz < 16; ++dz) {
-                    if (Climate164.canBlockFreeze(world, x + dx, y + 4, z + dz, false)) {
+                    if (Climate164.canBlockFreeze(world, x + dx, y + 4, z + dz)) {
                         world.setBlock(x + dx, y + 4, z + dz, Blocks.ice, 0, 2);
                     }
                 }

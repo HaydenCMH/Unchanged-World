@@ -11,14 +11,9 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 public class WorldGenHugeTrees164 extends WorldGenerator {
 
     private final int baseHeight;
-    private final int woodMetadata;
-    private final int leavesMetadata;
 
-    public WorldGenHugeTrees164(boolean notify, int baseHeight, int woodMetadata, int leavesMetadata) {
-        super(notify);
+    public WorldGenHugeTrees164(int baseHeight) {
         this.baseHeight = baseHeight;
-        this.woodMetadata = woodMetadata;
-        this.leavesMetadata = leavesMetadata;
     }
 
     @Override
@@ -80,13 +75,7 @@ public class WorldGenHugeTrees164 extends WorldGenerator {
                     for (int i = 0; i < 5; ++i) {
                         branchX = x + (int) (1.5F + MathHelper.cos(angle) * (float) i);
                         branchZ = z + (int) (1.5F + MathHelper.sin(angle) * (float) i);
-                        this.setBlockAndNotifyAdequately(
-                            world,
-                            branchX,
-                            branchY - 3 + i / 2,
-                            branchZ,
-                            Blocks.log,
-                            this.woodMetadata);
+                        this.setBlockAndNotifyAdequately(world, branchX, branchY - 3 + i / 2, branchZ, Blocks.log, 3);
                     }
                 }
 
@@ -94,7 +83,7 @@ public class WorldGenHugeTrees164 extends WorldGenerator {
                     Block block = world.getBlock(x, y + cy, z);
 
                     if (block == Blocks.air || block == Blocks.leaves) {
-                        this.setBlockAndNotifyAdequately(world, x, y + cy, z, Blocks.log, this.woodMetadata);
+                        this.setBlockAndNotifyAdequately(world, x, y + cy, z, Blocks.log, 3);
 
                         if (cy > 0) {
                             if (rand.nextInt(3) > 0 && world.isAirBlock(x - 1, y + cy, z)) {
@@ -111,7 +100,7 @@ public class WorldGenHugeTrees164 extends WorldGenerator {
                         block = world.getBlock(x + 1, y + cy, z);
 
                         if (block == Blocks.air || block == Blocks.leaves) {
-                            this.setBlockAndNotifyAdequately(world, x + 1, y + cy, z, Blocks.log, this.woodMetadata);
+                            this.setBlockAndNotifyAdequately(world, x + 1, y + cy, z, Blocks.log, 3);
 
                             if (cy > 0) {
                                 if (rand.nextInt(3) > 0 && world.isAirBlock(x + 2, y + cy, z)) {
@@ -127,13 +116,7 @@ public class WorldGenHugeTrees164 extends WorldGenerator {
                         block = world.getBlock(x + 1, y + cy, z + 1);
 
                         if (block == Blocks.air || block == Blocks.leaves) {
-                            this.setBlockAndNotifyAdequately(
-                                world,
-                                x + 1,
-                                y + cy,
-                                z + 1,
-                                Blocks.log,
-                                this.woodMetadata);
+                            this.setBlockAndNotifyAdequately(world, x + 1, y + cy, z + 1, Blocks.log, 3);
 
                             if (cy > 0) {
                                 if (rand.nextInt(3) > 0 && world.isAirBlock(x + 2, y + cy, z + 1)) {
@@ -149,7 +132,7 @@ public class WorldGenHugeTrees164 extends WorldGenerator {
                         block = world.getBlock(x, y + cy, z + 1);
 
                         if (block == Blocks.air || block == Blocks.leaves) {
-                            this.setBlockAndNotifyAdequately(world, x, y + cy, z + 1, Blocks.log, this.woodMetadata);
+                            this.setBlockAndNotifyAdequately(world, x, y + cy, z + 1, Blocks.log, 3);
 
                             if (cy > 0) {
                                 if (rand.nextInt(3) > 0 && world.isAirBlock(x - 1, y + cy, z + 1)) {
@@ -192,7 +175,7 @@ public class WorldGenHugeTrees164 extends WorldGenerator {
                         Block block = world.getBlock(cx, cy, cz);
 
                         if (block == Blocks.air || block == Blocks.leaves) {
-                            this.setBlockAndNotifyAdequately(world, cx, cy, cz, Blocks.leaves, this.leavesMetadata);
+                            this.setBlockAndNotifyAdequately(world, cx, cy, cz, Blocks.leaves, 3);
                         }
                     }
                 }

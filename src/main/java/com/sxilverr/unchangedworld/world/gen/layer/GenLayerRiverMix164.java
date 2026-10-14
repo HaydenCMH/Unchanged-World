@@ -8,7 +8,6 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
 
-import com.sxilverr.unchangedworld.world.biome.BiomeIds164;
 import com.sxilverr.unchangedworld.world.biome.BiomesOPlenty164;
 import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 
@@ -16,7 +15,7 @@ public class GenLayerRiverMix164 extends GenLayer {
 
     private final GenLayer biomePatternGeneratorChain;
     private final GenLayer riverPatternGeneratorChain;
-    private final int[] moddedRivers = new int[BiomeIds164.count()];
+    private final int[] moddedRivers = new int[BiomeGenBase.getBiomeGenArray().length];
 
     public GenLayerRiverMix164(long seed, GenLayer biomeChain, GenLayer riverChain, boolean moddedBiomes) {
         super(seed);

@@ -5,7 +5,7 @@
   "refmap": "mixins.unchangedworld.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
-  "mixins": ["BiomeGenBaseMixin", "BlockLiquidMixin", "BlockMixin", "ChunkMixin", "ItemMixin", "VillageField1Mixin", "VillageField2Mixin", "WeightedRandomChestContentMixin"],
+  "mixins": ["BiomeGenBaseMixin", "BlockLiquidMixin", "BlockMixin", "ChunkMixin", "ItemMixin", "WeightedRandomChestContentMixin"],
   "injectors": {
     "defaultRequire": 1
   }

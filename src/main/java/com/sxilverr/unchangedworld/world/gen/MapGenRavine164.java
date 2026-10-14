@@ -3,14 +3,10 @@ package com.sxilverr.unchangedworld.world.gen;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.MapGenBase;
 
-import com.sxilverr.unchangedworld.world.biome.Biome164;
-
-public class MapGenRavine164 extends MapGenBase {
+public class MapGenRavine164 extends MapGenCaves164 {
 
     private final float[] widthScale = new float[1024];
 
@@ -73,116 +69,16 @@ public class MapGenRavine164 extends MapGenBase {
                     return;
                 }
 
-                if (x >= centerX - 16.0D - horizontal * 2.0D && z >= centerZ - 16.0D - horizontal * 2.0D
-                    && x <= centerX + 16.0D + horizontal * 2.0D
-                    && z <= centerZ + 16.0D + horizontal * 2.0D) {
-                    int minX = MathHelper.floor_double(x - horizontal) - chunkX * 16 - 1;
-                    int maxX = MathHelper.floor_double(x + horizontal) - chunkX * 16 + 1;
-                    int minY = MathHelper.floor_double(y - vertical) - 1;
-                    int maxY = MathHelper.floor_double(y + vertical) + 1;
-                    int minZ = MathHelper.floor_double(z - horizontal) - chunkZ * 16 - 1;
-                    int maxZ = MathHelper.floor_double(z + horizontal) - chunkZ * 16 + 1;
-
-                    if (minX < 0) {
-                        minX = 0;
-                    }
-
-                    if (maxX > 16) {
-                        maxX = 16;
-                    }
-
-                    if (minY < 1) {
-                        minY = 1;
-                    }
-
-                    if (maxY > 120) {
-                        maxY = 120;
-                    }
-
-                    if (minZ < 0) {
-                        minZ = 0;
-                    }
-
-                    if (maxZ > 16) {
-                        maxZ = 16;
-                    }
-
-                    boolean water = false;
-
-                    for (int bx = minX; !water && bx < maxX; ++bx) {
-                        for (int bz = minZ; !water && bz < maxZ; ++bz) {
-                            for (int by = maxY + 1; !water && by >= minY - 1; --by) {
-                                int index = (bx * 16 + bz) * 256 + by;
-
-                                if (by >= 0 && by < 128) {
-                                    Block block = blocks[index];
-
-                                    if (block == Blocks.flowing_water || block == Blocks.water) {
-                                        water = true;
-                                    }
-
-                                    if (by != minY - 1 && bx != minX
-                                        && bx != maxX - 1
-                                        && bz != minZ
-                                        && bz != maxZ - 1) {
-                                        by = minY;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (!water) {
-                        for (int bx = minX; bx < maxX; ++bx) {
-                            double nx = ((double) (bx + chunkX * 16) + 0.5D - x) / horizontal;
-
-                            for (int bz = minZ; bz < maxZ; ++bz) {
-                                double nz = ((double) (bz + chunkZ * 16) + 0.5D - z) / horizontal;
-                                int index = (bx * 16 + bz) * 256 + maxY;
-                                boolean foundGrass = false;
-
-                                if (nx * nx + nz * nz < 1.0D) {
-                                    for (int by = maxY - 1; by >= minY; --by) {
-                                        double ny = ((double) by + 0.5D - y) / vertical;
-
-                                        if ((nx * nx + nz * nz) * (double) this.widthScale[by] + ny * ny / 6.0D
-                                            < 1.0D) {
-                                            Block block = blocks[index];
-
-                                            if (block == Blocks.grass) {
-                                                foundGrass = true;
-                                            }
-
-                                            if (block == Blocks.stone || block == Blocks.dirt
-                                                || block == Blocks.grass) {
-                                                if (by < 10) {
-                                                    blocks[index] = Blocks.flowing_lava;
-                                                } else {
-                                                    blocks[index] = null;
-
-                                                    if (foundGrass && blocks[index - 1] == Blocks.dirt) {
-                                                        blocks[index - 1] = Biome164.get(
-                                                            this.worldObj.getBiomeGenForCoords(
-                                                                bx + chunkX * 16,
-                                                                bz + chunkZ * 16)).topBlock;
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        --index;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (single) {
-                            break;
-                        }
-                    }
+                if (this.carve(chunkX, chunkZ, blocks, x, y, z, horizontal, vertical) && single) {
+                    break;
                 }
             }
         }
+    }
+
+    @Override
+    protected boolean inside(double nx, double ny, double nz, int y) {
+        return (nx * nx + nz * nz) * (double) this.widthScale[y] + ny * ny / 6.0D < 1.0D;
     }
 
     @Override
@@ -191,27 +87,10 @@ public class MapGenRavine164 extends MapGenBase {
             double x = (double) (sourceX * 16 + this.rand.nextInt(16));
             double y = (double) (this.rand.nextInt(this.rand.nextInt(40) + 8) + 20);
             double z = (double) (sourceZ * 16 + this.rand.nextInt(16));
-            byte count = 1;
-
-            for (int i = 0; i < count; ++i) {
-                float yaw = this.rand.nextFloat() * (float) Math.PI * 2.0F;
-                float pitch = (this.rand.nextFloat() - 0.5F) * 2.0F / 8.0F;
-                float radius = (this.rand.nextFloat() * 2.0F + this.rand.nextFloat()) * 2.0F;
-                this.generateRavine(
-                    this.rand.nextLong(),
-                    chunkX,
-                    chunkZ,
-                    blocks,
-                    x,
-                    y,
-                    z,
-                    radius,
-                    yaw,
-                    pitch,
-                    0,
-                    0,
-                    3.0D);
-            }
+            float yaw = this.rand.nextFloat() * (float) Math.PI * 2.0F;
+            float pitch = (this.rand.nextFloat() - 0.5F) * 2.0F / 8.0F;
+            float radius = (this.rand.nextFloat() * 2.0F + this.rand.nextFloat()) * 2.0F;
+            this.generateRavine(this.rand.nextLong(), chunkX, chunkZ, blocks, x, y, z, radius, yaw, pitch, 0, 0, 3.0D);
         }
     }
 }
