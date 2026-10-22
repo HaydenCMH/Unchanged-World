@@ -67,7 +67,6 @@ public final class BiomesOPlenty164 {
                     Class.forName(NOISE)
                         .getMethod("noise", double.class, double.class));
             available = true;
-            UnchangedWorld.LOG.info("BiomesOPlenty found, its overworld biomes will generate in 1.6.4 worlds");
         } catch (ReflectiveOperationException e) {
             available = false;
             UnchangedWorld.LOG.warn("BiomesOPlenty is installed but its biome lists could not be read", e);
