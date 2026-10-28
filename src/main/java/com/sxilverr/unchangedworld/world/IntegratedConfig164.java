@@ -20,7 +20,7 @@ public final class IntegratedConfig164 {
     private static final String[] VERSIONS = { V164, V1710 };
     private static final String[] BIOME_SIZES = { "0.5x", "1x (Vanilla)", "2x", "4x (Large Biomes)", "8x" };
     private static final double[] BIOME_WIDTHS = { 0.5, 1, 2, 4, 8 };
-    private static final Pattern LEADING_NUMBER = Pattern.compile("^\\s*(\\d+(\\.\\d+)?)");
+    private static final Pattern LEADING_NUMBER = Pattern.compile("^\\s*(\\d*\\.?\\d+)");
 
     private static Configuration config;
     private static Settings164 settings = new Settings164();
