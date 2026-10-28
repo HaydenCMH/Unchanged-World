@@ -76,6 +76,16 @@ public final class IntegratedConfig164 {
             1,
             1000,
             "Weight of each 1.6.4 biome against modded biome weights.");
+        loaded.climateZones = config.getBoolean(
+            "climateZones",
+            BIOMES,
+            false,
+            "Warm, temperate, cool and cold zones, like 1.7.10. Warm never touches cool or cold, so no taigas next to deserts. Continent shapes stay 1.6.4.");
+        loaded.humidity = config.getBoolean(
+            "humidity",
+            BIOMES,
+            true,
+            "With climate zones, split each zone into dry and wet biomes. Hot and dry gives deserts, hot and wet gives jungles and swamps.");
 
         loaded.gravelOceanFloor = config.getBoolean("gravelOceanFloor", SURFACE, false, "Gravel under deep water.");
         loaded.deepSandstone = config.getBoolean("deepSandstone", SURFACE, false, "Deeper sandstone under sand.");

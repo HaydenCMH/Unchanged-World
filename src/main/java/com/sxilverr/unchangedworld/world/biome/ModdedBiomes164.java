@@ -53,6 +53,26 @@ public final class ModdedBiomes164 {
         return weights;
     }
 
+    public static Map<BiomeGenBase, Integer> warmWeights() {
+        return bandWeights(BiomeType.DESERT, BiomesOPlenty164.HOT);
+    }
+
+    public static Map<BiomeGenBase, Integer> temperateBandWeights() {
+        return bandWeights(BiomeType.WARM, BiomesOPlenty164.WARM);
+    }
+
+    public static Map<BiomeGenBase, Integer> coolWeights() {
+        return bandWeights(BiomeType.COOL, BiomesOPlenty164.COOL);
+    }
+
+    public static Map<BiomeGenBase, Integer> coldWeights() {
+        return bandWeights(BiomeType.ICY, BiomesOPlenty164.ICY);
+    }
+
+    public static boolean isDry(BiomeGenBase biome) {
+        return biome.rainfall < 0.5F;
+    }
+
     public static List<BiomeGenBase> generating() {
         List<BiomeGenBase> biomes = new ArrayList<BiomeGenBase>();
         biomes.addAll(temperateWeights().keySet());
@@ -84,6 +104,13 @@ public final class ModdedBiomes164 {
         }
 
         return modded;
+    }
+
+    private static Map<BiomeGenBase, Integer> bandWeights(BiomeType forgeType, int biomesOPlentyType) {
+        Map<BiomeGenBase, Integer> weights = new LinkedHashMap<BiomeGenBase, Integer>();
+        addForge(weights, forgeType);
+        addBiomesOPlenty(weights, biomesOPlentyType);
+        return weights;
     }
 
     private static void addForge(Map<BiomeGenBase, Integer> weights, BiomeType... types) {

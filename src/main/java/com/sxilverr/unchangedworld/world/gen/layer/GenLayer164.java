@@ -35,7 +35,28 @@ public class GenLayer164 extends GenLayer {
         rivers = new GenLayer164(1L, rivers, GenLayer164::river);
         rivers = new GenLayer164(1000L, rivers, GenLayer164::smooth);
 
-        GenLayer biomes = new GenLayerBiome164(200L, continents, settings.moddedBiomes, settings.vanillaBiomeWeight);
+        GenLayer temperature = null;
+        GenLayer humidity = null;
+
+        if (settings.climateZones) {
+            temperature = new GenLayerTemperature164(3L);
+            temperature = new GenLayer164(2L, temperature, GenLayer164::edgeCoolWarm);
+            temperature = new GenLayer164(2L, temperature, GenLayer164::edgeHeatIce);
+            temperature = GenLayerZoom164.magnify(2002L, temperature, 2);
+
+            if (settings.humidity) {
+                humidity = new GenLayerHumidity164(7L);
+                humidity = GenLayerZoom164.magnify(2002L, humidity, 2);
+            }
+        }
+
+        GenLayer biomes = new GenLayerBiome164(
+            200L,
+            continents,
+            temperature,
+            humidity,
+            settings.moddedBiomes,
+            settings.vanillaBiomeWeight);
         biomes = GenLayerZoom164.magnify(1000L, biomes, 2);
         biomes = new GenLayer164(1000L, biomes, GenLayer164::hills);
         biomes = new GenLayerSubBiome164(1500L, biomes, settings.moddedBiomes);
@@ -135,6 +156,53 @@ public class GenLayer164 extends GenLayer {
         }
 
         return layer.nextInt(5) == 0 ? BiomeGenBase.icePlains.biomeID : 1;
+    }
+
+    private static int edgeCoolWarm(GenLayer164 layer, int[] p, int i, int w) {
+        int center = p[i];
+
+        if (center == GenLayerTemperature164.WARM) {
+            int north = p[i - w];
+            int east = p[i + 1];
+            int west = p[i - 1];
+            int south = p[i + w];
+            boolean cool = north == GenLayerTemperature164.COOL || east == GenLayerTemperature164.COOL
+                || west == GenLayerTemperature164.COOL
+                || south == GenLayerTemperature164.COOL;
+            boolean cold = north == GenLayerTemperature164.COLD || east == GenLayerTemperature164.COLD
+                || west == GenLayerTemperature164.COLD
+                || south == GenLayerTemperature164.COLD;
+
+            if (cool || cold) {
+                return GenLayerTemperature164.TEMPERATE;
+            }
+        }
+
+        return center;
+    }
+
+    private static int edgeHeatIce(GenLayer164 layer, int[] p, int i, int w) {
+        int center = p[i];
+
+        if (center == GenLayerTemperature164.COLD) {
+            int north = p[i - w];
+            int east = p[i + 1];
+            int west = p[i - 1];
+            int south = p[i + w];
+            boolean warm = north == GenLayerTemperature164.WARM || east == GenLayerTemperature164.WARM
+                || west == GenLayerTemperature164.WARM
+                || south == GenLayerTemperature164.WARM;
+            boolean temperate = north == GenLayerTemperature164.TEMPERATE
+                || east == GenLayerTemperature164.TEMPERATE
+                || west == GenLayerTemperature164.TEMPERATE
+                || south == GenLayerTemperature164.TEMPERATE;
+
+            if (warm || temperate) {
+                return GenLayerTemperature164.COOL;
+            }
+        }
+
+        return center;
     }
 
     private static int hills(GenLayer164 layer, int[] p, int i, int w) {
