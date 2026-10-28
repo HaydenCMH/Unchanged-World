@@ -137,9 +137,11 @@ public final class IntegratedConfig164 {
         int index = Arrays.asList(BIOME_SIZES)
             .indexOf(size);
         if (index < 0) {
-            // Accept plain numbers from hand-edited files, anything else is 1x.
+            // Accept plain numbers and short forms like 4x from hand-edited files, anything else is 1x.
+            String number = size.trim()
+                .replaceFirst("[xX]$", "");
             index = Arrays.asList(OLD_BIOME_SIZES)
-                .indexOf(size.trim());
+                .indexOf(number);
             if (index < 0) {
                 index = 1;
             }
