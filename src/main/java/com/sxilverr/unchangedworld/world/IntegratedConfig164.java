@@ -16,7 +16,8 @@ public final class IntegratedConfig164 {
     private static final String V164 = "1.6.4";
     private static final String V1710 = "1.7.10";
     private static final String[] VERSIONS = { V164, V1710 };
-    private static final String[] BIOME_SIZES = { "0.5", "1", "2", "4", "8" };
+    private static final String[] BIOME_SIZES = { "0.5x", "1x (Vanilla)", "2x", "4x (Large Biomes)", "8x" };
+    private static final String[] OLD_BIOME_SIZES = { "0.5", "1", "2", "4", "8" };
 
     private static Configuration config;
     private static Settings164 settings = new Settings164();
@@ -69,13 +70,7 @@ public final class IntegratedConfig164 {
         loaded.strongholdBiomes1710 = is1710(CATEGORY, "strongholdBiomes", "Biomes that can hold strongholds.");
         loaded.chestBooks1710 = is1710(CATEGORY, "chestBooks", "Enchanted books in generated chests.");
 
-        loaded.biomeZooms = biomeZooms(
-            config.getString(
-                "biomeSize",
-                BIOMES,
-                migratedBiomeSize(),
-                "Biome width compared to normal. 1 is normal, 4 matches Large Biomes.",
-                BIOME_SIZES));
+        loaded.biomeZooms = biomeZooms();
         loaded.moddedBiomes = config.getBoolean("moddedBiomes", BIOMES, true, "Biomes from other mods.");
         loaded.vanillaBiomeWeight = config.getInt(
             "vanillaBiomeWeight",
@@ -127,15 +122,32 @@ public final class IntegratedConfig164 {
         Property largeBiomes = config.getCategory(BIOMES)
             .remove("largeBiomes");
         if (largeBiomes == null) {
-            return "1";
+            return BIOME_SIZES[1];
         }
-        return largeBiomes.getBoolean(false) ? "4" : "1";
+        return BIOME_SIZES[largeBiomes.getBoolean(false) ? 3 : 1];
     }
 
-    private static int biomeZooms(String size) {
+    private static int biomeZooms() {
+        String size = config.getString(
+            "biomeSize",
+            BIOMES,
+            migratedBiomeSize(),
+            "Biome width compared to vanilla. 4x matches Large Biomes.",
+            BIOME_SIZES);
         int index = Arrays.asList(BIOME_SIZES)
             .indexOf(size);
-        return index < 0 ? 4 : index + 3;
+        if (index < 0) {
+            // Accept plain numbers from hand-edited files, anything else is 1x.
+            index = Arrays.asList(OLD_BIOME_SIZES)
+                .indexOf(size.trim());
+            if (index < 0) {
+                index = 1;
+            }
+            config.getCategory(BIOMES)
+                .get("biomeSize")
+                .set(BIOME_SIZES[index]);
+        }
+        return index + 3;
     }
 
     private static boolean is1710(String category, String name, String comment) {
