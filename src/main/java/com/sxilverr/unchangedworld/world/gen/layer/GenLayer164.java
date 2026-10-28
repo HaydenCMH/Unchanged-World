@@ -162,19 +162,14 @@ public class GenLayer164 extends GenLayer {
         int center = p[i];
 
         if (center == GenLayerTemperature164.WARM) {
-            int north = p[i - w];
-            int east = p[i + 1];
-            int west = p[i - 1];
-            int south = p[i + w];
-            boolean cool = north == GenLayerTemperature164.COOL || east == GenLayerTemperature164.COOL
-                || west == GenLayerTemperature164.COOL
-                || south == GenLayerTemperature164.COOL;
-            boolean cold = north == GenLayerTemperature164.COLD || east == GenLayerTemperature164.COLD
-                || west == GenLayerTemperature164.COLD
-                || south == GenLayerTemperature164.COLD;
+            for (int dy = -w; dy <= w; dy += w) {
+                for (int dx = -1; dx <= 1; ++dx) {
+                    int neighbour = p[i + dy + dx];
 
-            if (cool || cold) {
-                return GenLayerTemperature164.TEMPERATE;
+                    if (neighbour == GenLayerTemperature164.COOL || neighbour == GenLayerTemperature164.COLD) {
+                        return GenLayerTemperature164.TEMPERATE;
+                    }
+                }
             }
         }
 

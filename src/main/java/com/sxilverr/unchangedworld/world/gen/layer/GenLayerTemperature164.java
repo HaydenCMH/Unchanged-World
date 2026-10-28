@@ -21,8 +21,7 @@ public class GenLayerTemperature164 extends GenLayer {
         for (int y = 0; y < areaHeight; ++y) {
             for (int x = 0; x < areaWidth; ++x) {
                 this.initChunkSeed(areaX + x, areaY + y);
-                int roll = this.nextInt(7);
-                out[x + y * areaWidth] = roll <= 1 ? COLD : (roll == 2 ? COOL : WARM);
+                out[x + y * areaWidth] = this.nextInt(8) < 3 ? COLD : WARM;
             }
         }
 
