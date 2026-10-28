@@ -2,6 +2,8 @@ package com.sxilverr.unchangedworld.world;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -17,7 +19,8 @@ public final class IntegratedConfig164 {
     private static final String V1710 = "1.7.10";
     private static final String[] VERSIONS = { V164, V1710 };
     private static final String[] BIOME_SIZES = { "0.5x", "1x (Vanilla)", "2x", "4x (Large Biomes)", "8x" };
-    private static final String[] OLD_BIOME_SIZES = { "0.5", "1", "2", "4", "8" };
+    private static final double[] BIOME_WIDTHS = { 0.5, 1, 2, 4, 8 };
+    private static final Pattern LEADING_NUMBER = Pattern.compile("^\\s*(\\d+(\\.\\d+)?)");
 
     private static Configuration config;
     private static Settings164 settings = new Settings164();
@@ -137,13 +140,16 @@ public final class IntegratedConfig164 {
         int index = Arrays.asList(BIOME_SIZES)
             .indexOf(size);
         if (index < 0) {
-            // Accept plain numbers and short forms like 4x from hand-edited files, anything else is 1x.
-            String number = size.trim()
-                .replaceFirst("[xX]$", "");
-            index = Arrays.asList(OLD_BIOME_SIZES)
-                .indexOf(number);
-            if (index < 0) {
-                index = 1;
+            // Hand-edited files: read the number at the start and ignore the rest, anything else is 1x.
+            index = 1;
+            Matcher number = LEADING_NUMBER.matcher(size);
+            if (number.find()) {
+                double width = Double.parseDouble(number.group(1));
+                for (int i = 0; i < BIOME_WIDTHS.length; ++i) {
+                    if (BIOME_WIDTHS[i] == width) {
+                        index = i;
+                    }
+                }
             }
             config.getCategory(BIOMES)
                 .get("biomeSize")
