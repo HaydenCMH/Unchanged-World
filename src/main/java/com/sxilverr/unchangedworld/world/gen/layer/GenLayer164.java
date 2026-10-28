@@ -192,8 +192,7 @@ public class GenLayer164 extends GenLayer {
             boolean warm = north == GenLayerTemperature164.WARM || east == GenLayerTemperature164.WARM
                 || west == GenLayerTemperature164.WARM
                 || south == GenLayerTemperature164.WARM;
-            boolean temperate = north == GenLayerTemperature164.TEMPERATE
-                || east == GenLayerTemperature164.TEMPERATE
+            boolean temperate = north == GenLayerTemperature164.TEMPERATE || east == GenLayerTemperature164.TEMPERATE
                 || west == GenLayerTemperature164.TEMPERATE
                 || south == GenLayerTemperature164.TEMPERATE;
 
