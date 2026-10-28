@@ -63,8 +63,8 @@ public class GenLayerBiome164 extends GenLayer {
             moddedBiomes ? ModdedBiomes164.warmWeights() : none,
             vanillaWeight,
             ids(BiomeGenBase.desert, BiomeGenBase.plains, BiomeGenBase.jungle),
-            ids(BiomeGenBase.desert, BiomeGenBase.desert, BiomeGenBase.plains),
-            ids(BiomeGenBase.jungle, BiomeGenBase.jungle, BiomeGenBase.forest, BiomeGenBase.swampland));
+            ids(BiomeGenBase.desert, BiomeGenBase.plains),
+            ids(BiomeGenBase.jungle, BiomeGenBase.jungle, BiomeGenBase.swampland));
         this.bandPools[GenLayerTemperature164.TEMPERATE] = this.band(
             moddedBiomes ? ModdedBiomes164.temperateBandWeights() : none,
             vanillaWeight,
