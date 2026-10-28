@@ -43,11 +43,8 @@ public class GenLayer164 extends GenLayer {
             temperature = GenLayerZoom164.magnify(2100L, temperature, 2);
             temperature = new GenLayer164(2L, temperature, GenLayer164::edgeCoolWarm);
             temperature = new GenLayer164(2L, temperature, GenLayer164::edgeHeatIce);
-
-            if (settings.humidity) {
-                humidity = new GenLayerHumidity164(7L);
-                humidity = GenLayerZoom164.magnify(2200L, humidity, 2);
-            }
+            humidity = new GenLayerHumidity164(7L);
+            humidity = GenLayerZoom164.magnify(2200L, humidity, 2);
         }
 
         GenLayer biomes = new GenLayerBiome164(

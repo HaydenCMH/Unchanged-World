@@ -80,12 +80,7 @@ public final class IntegratedConfig164 {
             "climateZones",
             BIOMES,
             false,
-            "Warm, temperate, cool and cold zones, like 1.7.10. Warm never touches cool or cold, so no taigas next to deserts. Continent shapes stay 1.6.4.");
-        loaded.humidity = config.getBoolean(
-            "humidity",
-            BIOMES,
-            false,
-            "With climate zones, split each zone into dry and wet biomes. Hot and dry gives deserts, hot and wet gives jungles and swamps.");
+            "Warm, temperate, cool and cold zones split into dry and wet biomes, so no taigas next to deserts. Continent shapes stay 1.6.4.");
 
         loaded.gravelOceanFloor = config.getBoolean("gravelOceanFloor", SURFACE, false, "Gravel under deep water.");
         loaded.deepSandstone = config.getBoolean("deepSandstone", SURFACE, false, "Deeper sandstone under sand.");

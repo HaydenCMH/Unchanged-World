@@ -12,7 +12,6 @@ import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 
 public class GenLayerBiome164 extends GenLayer {
 
-    private static final int ANY = 0;
     private static final int DRY = GenLayerHumidity164.DRY;
     private static final int WET = GenLayerHumidity164.WET;
 
@@ -29,7 +28,7 @@ public class GenLayerBiome164 extends GenLayer {
         super(seed);
         this.parent = parent;
         this.temperature = temperature;
-        this.humidity = temperature != null ? humidity : null;
+        this.humidity = humidity;
 
         if (temperature != null) {
             this.createBandPools(moddedBiomes, vanillaWeight);
@@ -62,32 +61,27 @@ public class GenLayerBiome164 extends GenLayer {
         this.bandPools[GenLayerTemperature164.WARM] = this.band(
             moddedBiomes ? ModdedBiomes164.warmWeights() : none,
             vanillaWeight,
-            ids(BiomeGenBase.desert, BiomeGenBase.plains, BiomeGenBase.jungle),
             ids(BiomeGenBase.desert, BiomeGenBase.plains),
             ids(BiomeGenBase.jungle, BiomeGenBase.jungle, BiomeGenBase.swampland));
         this.bandPools[GenLayerTemperature164.TEMPERATE] = this.band(
             moddedBiomes ? ModdedBiomes164.temperateBandWeights() : none,
             vanillaWeight,
-            ids(BiomeGenBase.forest, BiomeGenBase.plains, BiomeGenBase.swampland, BiomeGenBase.extremeHills),
             ids(BiomeGenBase.plains, BiomeGenBase.extremeHills),
             ids(BiomeGenBase.forest, BiomeGenBase.forest, BiomeGenBase.swampland));
         this.bandPools[GenLayerTemperature164.COOL] = this.band(
             moddedBiomes ? ModdedBiomes164.coolWeights() : none,
             vanillaWeight,
-            ids(BiomeGenBase.taiga, BiomeGenBase.forest, BiomeGenBase.extremeHills),
             ids(BiomeGenBase.taiga, BiomeGenBase.extremeHills),
             ids(BiomeGenBase.taiga, BiomeGenBase.forest));
         this.bandPools[GenLayerTemperature164.COLD] = this.band(
             moddedBiomes ? ModdedBiomes164.coldWeights() : none,
             vanillaWeight,
-            ids(BiomeGenBase.icePlains, BiomeGenBase.taiga),
             ids(BiomeGenBase.icePlains),
             ids(BiomeGenBase.icePlains, BiomeGenBase.taiga));
     }
 
-    private Pool[] band(Map<BiomeGenBase, Integer> modded, int vanillaWeight, int[] any, int[] dry, int[] wet) {
+    private Pool[] band(Map<BiomeGenBase, Integer> modded, int vanillaWeight, int[] dry, int[] wet) {
         Pool[] pools = new Pool[WET + 1];
-        pools[ANY] = new Pool(any, modded, vanillaWeight);
         pools[DRY] = new Pool(dry, humid(modded, true), vanillaWeight);
         pools[WET] = new Pool(wet, humid(modded, false), vanillaWeight);
         return pools;
@@ -119,9 +113,6 @@ public class GenLayerBiome164 extends GenLayer {
     public void initWorldGenSeed(long seed) {
         if (this.temperature != null) {
             this.temperature.initWorldGenSeed(seed);
-        }
-
-        if (this.humidity != null) {
             this.humidity.initWorldGenSeed(seed);
         }
 
@@ -160,7 +151,7 @@ public class GenLayerBiome164 extends GenLayer {
     private int[] getBandInts(int areaX, int areaY, int areaWidth, int areaHeight) {
         int[] parentInts = this.parent.getInts(areaX, areaY, areaWidth, areaHeight);
         int[] bands = this.temperature.getInts(areaX, areaY, areaWidth, areaHeight);
-        int[] humidities = this.humidity != null ? this.humidity.getInts(areaX, areaY, areaWidth, areaHeight) : null;
+        int[] humidities = this.humidity.getInts(areaX, areaY, areaWidth, areaHeight);
         int[] out = IntCache.getIntCache(areaWidth * areaHeight);
 
         for (int i = 0; i < areaWidth * areaHeight; ++i) {
@@ -170,7 +161,7 @@ public class GenLayerBiome164 extends GenLayer {
             if (value == 0 || value == BiomeGenBase.mushroomIsland.biomeID) {
                 out[i] = value;
             } else {
-                Pool pool = this.bandPools[bands[i]][humidities != null ? humidities[i] : ANY];
+                Pool pool = this.bandPools[bands[i]][humidities[i]];
                 out[i] = pool.pick(this.nextInt(pool.totalWeight));
             }
         }

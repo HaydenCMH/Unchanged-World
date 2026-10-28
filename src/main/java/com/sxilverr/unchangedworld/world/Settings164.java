@@ -21,7 +21,6 @@ public final class Settings164 {
     public boolean moddedBiomes = true;
     public int vanillaBiomeWeight = 10;
     public boolean climateZones;
-    public boolean humidity;
     public boolean flowers1710;
     public boolean plainsDoubleGrass;
     public boolean forestDoublePlants;
