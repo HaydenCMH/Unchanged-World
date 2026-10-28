@@ -84,7 +84,7 @@ public final class IntegratedConfig164 {
         loaded.humidity = config.getBoolean(
             "humidity",
             BIOMES,
-            true,
+            false,
             "With climate zones, split each zone into dry and wet biomes. Hot and dry gives deserts, hot and wet gives jungles and swamps.");
 
         loaded.gravelOceanFloor = config.getBoolean("gravelOceanFloor", SURFACE, false, "Gravel under deep water.");
