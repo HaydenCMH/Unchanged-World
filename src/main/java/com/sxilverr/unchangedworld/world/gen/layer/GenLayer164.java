@@ -28,7 +28,7 @@ public class GenLayer164 extends GenLayer {
         layer = new GenLayerZoom164(2003L, layer);
         layer = new GenLayer164(4L, layer, GenLayer164::addIsland);
         GenLayer continents = new GenLayer164(5L, layer, GenLayer164::addMushroomIsland);
-        int biomeSize = settings.largeBiomes ? 6 : 4;
+        int biomeSize = settings.biomeSize;
 
         GenLayer rivers = new GenLayerRiverInit164(100L, continents);
         rivers = GenLayerZoom164.magnify(1000L, rivers, biomeSize + 2);
