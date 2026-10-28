@@ -1,6 +1,7 @@
 package com.sxilverr.unchangedworld.world;
 
 import java.io.File;
+import java.util.Arrays;
 
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -15,6 +16,7 @@ public final class IntegratedConfig164 {
     private static final String V164 = "1.6.4";
     private static final String V1710 = "1.7.10";
     private static final String[] VERSIONS = { V164, V1710 };
+    private static final String[] BIOME_SIZES = { "0.5", "1", "2", "4", "8" };
 
     private static Configuration config;
     private static Settings164 settings = new Settings164();
@@ -67,13 +69,13 @@ public final class IntegratedConfig164 {
         loaded.strongholdBiomes1710 = is1710(CATEGORY, "strongholdBiomes", "Biomes that can hold strongholds.");
         loaded.chestBooks1710 = is1710(CATEGORY, "chestBooks", "Enchanted books in generated chests.");
 
-        loaded.biomeSize = config.getInt(
-            "biomeSize",
-            BIOMES,
-            migratedBiomeSize(),
-            3,
-            7,
-            "Biome size. Each step doubles biome width. 4 is normal, 6 matches Large Biomes.");
+        loaded.biomeZooms = biomeZooms(
+            config.getString(
+                "biomeSize",
+                BIOMES,
+                migratedBiomeSize(),
+                "Biome width compared to normal. 1 is normal, 4 matches Large Biomes.",
+                BIOME_SIZES));
         loaded.moddedBiomes = config.getBoolean("moddedBiomes", BIOMES, true, "Biomes from other mods.");
         loaded.vanillaBiomeWeight = config.getInt(
             "vanillaBiomeWeight",
@@ -121,13 +123,19 @@ public final class IntegratedConfig164 {
         settings = loaded;
     }
 
-    private static int migratedBiomeSize() {
+    private static String migratedBiomeSize() {
         Property largeBiomes = config.getCategory(BIOMES)
             .remove("largeBiomes");
         if (largeBiomes == null) {
-            return 4;
+            return "1";
         }
-        return largeBiomes.getBoolean(false) ? 6 : 4;
+        return largeBiomes.getBoolean(false) ? "4" : "1";
+    }
+
+    private static int biomeZooms(String size) {
+        int index = Arrays.asList(BIOME_SIZES)
+            .indexOf(size);
+        return index < 0 ? 4 : index + 3;
     }
 
     private static boolean is1710(String category, String name, String comment) {

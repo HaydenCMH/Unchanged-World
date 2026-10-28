@@ -17,7 +17,7 @@ public final class Settings164 {
     public boolean mineshafts1710;
     public boolean strongholdBiomes1710;
     public boolean chestBooks1710;
-    public int biomeSize = 4;
+    public int biomeZooms = 4;
     public boolean moddedBiomes = true;
     public int vanillaBiomeWeight = 10;
     public boolean flowers1710;
